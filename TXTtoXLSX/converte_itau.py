@@ -10,7 +10,7 @@ with open(txt_path, 'r', encoding='utf-8') as file:
     
 # Padrão regex
 padraoCabecalho = r"(D = débito a compensar )+(\d{2}/\d{2})([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(G = aplicação programada )+([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(P = poupança automática )+([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))"
-padraoCorpo = r"([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*)\s"
+padraoCorpo = r"(\d{2}/\d{2})*([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*)\s"
 
 
 # Encontrar o índice do trecho "Para demais siglas, consulte as Notas"
@@ -46,7 +46,7 @@ if matchesCabecalho and matchesCorpo:
         ws.delete_rows(row_index, amount=1)
 
     for match in matchesCorpo:
-        ws.append(['', match[0], match[1]])
+        ws.append([match[0], match[1], match[2]])
 
     # Percorrer as células na coluna C e converter os valores para números com duas casas decimais
     for row in ws.iter_rows(min_row=2, min_col=3, max_col=3):
@@ -61,10 +61,19 @@ if matchesCabecalho and matchesCorpo:
                 float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
                 cell.value = float_value
 
+    # Preencher células vazias na coluna "Data" com valores das células acima até encontrar outra célula não vazia
+    last_value = None
+    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=1):
+        for cell in row:
+            if cell.value:
+                last_value = cell.value
+            else:
+                cell.value = last_value
+
     xlsx_path = sys.argv[2]
     wb.save(xlsx_path)
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
 
-#python converte_itau.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/aextrato cons Itau 10704-5 agosto.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/aextrato cons Itau 10704-5 agosto.xlsx"
+#python converte_itau.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.xlsx"

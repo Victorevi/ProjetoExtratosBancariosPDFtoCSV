@@ -28,4 +28,6 @@ if matches:
 else:
     print("Nenhuma correspondência encontrada.")
 
-#python converte_santander.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander_ORC.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander_ORC.xlsx"
+'''
+python converte_santander.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander1.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander_ORC.xlsx"
+'''
