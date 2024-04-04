@@ -83,6 +83,7 @@ python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/202401
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/ItauAbril2023" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023" "Itau"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Original Fev" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev" "Original"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/santander" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander" "Santander"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/20240131 - SANTANDER 13006763-2" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - SANTANDER 13006763-2" "Santander"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/travelex" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex" "Travelex"
 '''
 
@@ -93,12 +94,12 @@ Pontos a melhorar, montar um padrão de saida de arquivo XLSX, limpar os arquivo
 
 De-Para e quantidade de arquivos testados
 Banco do Brasil(X) 2
-Bradesco() Problematico
+Bradesco() Problematico 
 BS2()
 C6()
 Caixa(X) 2
 Itau (X) 2
 Original() Problematico
-Santander() Problematico
+Santander(X) 2
 Travelex()
 '''

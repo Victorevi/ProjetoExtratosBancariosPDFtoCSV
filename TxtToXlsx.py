@@ -45,7 +45,7 @@ match tipo:
 
     case "Bradesco":
         # Padrão regex
-        padrao = r"^(\d{2}/\d{2}/\d{4})*\n*([\w\d./:& -]*\n*[\w\d./:& -]*)\s+(\d+) ([-.\d,]+,\d{2}\b-*) ([-.\d,]+,\d{2}\b-*)"
+        padrao = r"^(\d{2}/\d{2}/\d{4})*\s*([\w\d./:& -]*\s*[\w\d./:& -]*)\s*(\d+)*\s+([-.\d,]+,\d{2}\b-*)\s*([-.\d,]+,\d{2}\b-*)*"
 
         # Procurando por todas as correspondências no texto
         matches = re.findall(padrao, texto, re.MULTILINE)
@@ -126,7 +126,7 @@ match tipo:
 
     case "Santander":
         # Padrão regex
-        padrao = r"(\d{2}/\d{2}/\d{4})\s*([\w\s\d./-]*(?=))\s*(\d{6})\s*([\d,\d{2}.-]*(?=))"
+        padrao = r"(\d{2}/\d{2}/\d{4})+\s+([\w\d., /-]*)\s+(\d{6}|[\w/]{6})+\s+([-.\d,]+,\d{2}\b)"
 
         # Procurando por todas as correspondências no texto
         matches = re.findall(padrao, texto)
