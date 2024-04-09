@@ -83,7 +83,9 @@ switch_case(tipo)
 
 '''
 
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/20240131 - CITIBANK 086326376 Escrow - Brasília" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - CITIBANK 086326376 Escrow - Brasilia" "0"
+python PdfToTpython PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/20240131 - CITIBANK 086326376 Escrow - Brasília.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - CITIBANK 086326376 Escrow - Brasilia" "0"
 python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/santander.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander1" "1"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/202402 - CITIBANK_90015799 Extrato de Operações (1).pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de Operações (1)1" "2"
+python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/202402 - CITIBANK_90015799 Extrato de Operações (1).pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de Operacoes (1)1" "2"
+python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK- Extrato de Operações.90016495.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de Operacoes 90016495" "2"
+python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/20240131 - C6_42457718.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - C6_42457718" "0"
 '''

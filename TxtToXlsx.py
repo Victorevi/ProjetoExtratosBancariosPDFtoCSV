@@ -1,6 +1,7 @@
 import sys
 import re
 import openpyxl
+import csv
 
 #Imputs
 txt_path = sys.argv[1]
@@ -85,13 +86,20 @@ match tipo:
         
     case "City":
         # Padrão regex
-        padrao = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))"
+        padrao_antecipada = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*\s+(\d*)\s*([-.\d,\d{2}]*(?=))"
+        padrao_liquidada = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))"
+
+        # Encontrar o índice do trecho "Para demais siglas, consulte as Notas"
+        indice_split = texto.find("Operações Liquidadas")
+        parte1 = texto[:indice_split]
+        parte2 = texto[indice_split:]
 
         # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto)
+        matches_antecipada = re.findall(padrao_antecipada, parte1, re.MULTILINE)
+        matches_liquidada = re.findall(padrao_liquidada, parte2, re.MULTILINE)
 
         # Define padrão de colunas
-        colunas = ['Número da Operação', 'Título', 'Data de Início', 'Data de Vencimento', 'Data de Liquidação', 'Indexador', '(%) do Indexador', 'Taxa Original (a.a)', 'Valor Inicial da Aplicação (R$)', 'Valor Base da Aplicação Corrigido (R$)', 'Rendimento Bruto do Título (R$)', 'IOF (R$)', 'IRRF (R$)', 'Rendimento Líquido do Título (R$)', 'Valor Base de Aplicação Liquido (R$)', '% Resgate Antecipado']
+        colunas = ['Número da Operação', 'Título', 'Data de Início', 'Data de Vencimento', 'Data de Liquidação', 'Indexador', '(%) do Indexador', 'Taxa Original (a.a)', 'Valor Inicial da Aplicação (R$)', 'Valor Base da Aplicação Corrigido (R$)', 'Rendimento Bruto do Título (R$)', 'IOF (R$)', 'IRRF (R$)', 'Rendimento Líquido do Título (R$)', 'Valor Base de Aplicação Liquido (R$)', 'Tipo Bloqueio', '% Resgate Antecipado']
         
     case "Itau":
         # Padrão regex
@@ -197,7 +205,78 @@ if tipo == "Itau":
         print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
     else:
         print("Nenhuma correspondência encontrada.")
+if tipo == "City":
+    # Se houver correspondências, escrever os dados em um arquivo XLSX
+    if matches_antecipada and matches_liquidada:
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.append(colunas)
+        for match in matches_antecipada:
+            ws.append([match[0], match[1], match[2], match[3], '', match[4], match[5], match[6], match[7], match[8], match[9], match[10], match[11], match[12], match[13], match[14], match[15]])
+        
+        for match in matches_liquidada:
+            ws.append([match[0], match[1], match[2], match[3], match[4], match[5], match[6], match[7], match[8], match[9], match[10], match[11], match[12], match[13], match[14], '', match[15]])
 
+        for row in ws.iter_rows(min_row=2, min_col=9, max_col=9):
+            for cell in row:
+                if cell.value:
+                    # Remover pontos e vírgulas
+                    cleaned_value = cell.value.replace('.', '').replace(',', '')
+                    # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
+                    float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                    cell.value = float_value
+        for row in ws.iter_rows(min_row=2, min_col=10, max_col=10):
+            for cell in row:
+                if cell.value:
+                    # Remover pontos e vírgulas
+                    cleaned_value = cell.value.replace('.', '').replace(',', '')
+                    # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
+                    float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                    cell.value = float_value
+        for row in ws.iter_rows(min_row=2, min_col=11, max_col=11):
+            for cell in row:
+                if cell.value:
+                    # Remover pontos e vírgulas
+                    cleaned_value = cell.value.replace('.', '').replace(',', '')
+                    # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
+                    float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                    cell.value = float_value
+        for row in ws.iter_rows(min_row=2, min_col=12, max_col=12):
+            for cell in row:
+                if cell.value:
+                    # Remover pontos e vírgulas
+                    cleaned_value = cell.value.replace('.', '').replace(',', '')
+                    # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
+                    float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                    cell.value = float_value
+        for row in ws.iter_rows(min_row=2, min_col=13, max_col=13):
+            for cell in row:
+                if cell.value:
+                    # Remover pontos e vírgulas
+                    cleaned_value = cell.value.replace('.', '').replace(',', '')
+                    # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
+                    float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                    cell.value = float_value
+        for row in ws.iter_rows(min_row=2, min_col=14, max_col=14):
+            for cell in row:
+                if cell.value:
+                    # Remover pontos e vírgulas
+                    cleaned_value = cell.value.replace('.', '').replace(',', '')
+                    # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
+                    float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                    cell.value = float_value
+        for row in ws.iter_rows(min_row=2, min_col=15, max_col=15):
+            for cell in row:
+                if cell.value:
+                    # Remover pontos e vírgulas
+                    cleaned_value = cell.value.replace('.', '').replace(',', '')
+                    # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
+                    float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                    cell.value = float_value
+        wb.save(xlsx_path)
+        print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
+    else:
+        print("Nenhuma correspondência encontrada.")
 else:
     # Se houver correspondências, escrever os dados em um arquivo XLSX
     if matches:
@@ -207,6 +286,17 @@ else:
         if tipo == "Original":
             for match in matches:
                 ws.append(list([match[1], match[0], match[2], match[3], match[4]]))
+            for row in ws.iter_rows(min_row=2, min_col=4, max_col=4):
+                for cell in row:
+                    if cell.value:
+                        # Remover pontos e vírgulas
+                        cleaned_value = cell.value.replace('R$', '').replace('.', '').replace(',', '').replace('+', '')
+                        # Verificar se o último caractere é "-" e converter para negativo se necessário
+                        if cleaned_value.startswith('-') or cleaned_value.startswith('--') :
+                            cleaned_value = '-' + cleaned_value[3:]
+                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
+                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                        cell.value = float_value
         else:
             for match in matches:
                 ws.append(list(match))
@@ -221,7 +311,6 @@ else:
                     else:
                         cell.value = last_value
 
-        # Percorrer as células nas colunas de valor e converter os valores para números com duas casas decimais
         if tipo == "Banco do Brasil":
             for row in ws.iter_rows(min_row=2, min_col=6, max_col=7):
                 cell6 = row[0]  # Primeira célula (coluna 6)
@@ -329,76 +418,7 @@ else:
                         # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
                         float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
                         # Fazer o número positivo
-                        cell6.value = float_value
-        if tipo == "City":
-            for row in ws.iter_rows(min_row=2, min_col=9, max_col=9):
-                for cell in row:
-                    if cell.value:
-                        # Remover pontos e vírgulas
-                        cleaned_value = cell.value.replace('.', '').replace(',', '')
-                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
-                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                        cell.value = float_value
-            for row in ws.iter_rows(min_row=2, min_col=10, max_col=10):
-                for cell in row:
-                    if cell.value:
-                        # Remover pontos e vírgulas
-                        cleaned_value = cell.value.replace('.', '').replace(',', '')
-                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
-                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                        cell.value = float_value
-            for row in ws.iter_rows(min_row=2, min_col=11, max_col=11):
-                for cell in row:
-                    if cell.value:
-                        # Remover pontos e vírgulas
-                        cleaned_value = cell.value.replace('.', '').replace(',', '')
-                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
-                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                        cell.value = float_value
-            for row in ws.iter_rows(min_row=2, min_col=12, max_col=12):
-                for cell in row:
-                    if cell.value:
-                        # Remover pontos e vírgulas
-                        cleaned_value = cell.value.replace('.', '').replace(',', '')
-                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
-                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                        cell.value = float_value
-            for row in ws.iter_rows(min_row=2, min_col=13, max_col=13):
-                for cell in row:
-                    if cell.value:
-                        # Remover pontos e vírgulas
-                        cleaned_value = cell.value.replace('.', '').replace(',', '')
-                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
-                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                        cell.value = float_value
-            for row in ws.iter_rows(min_row=2, min_col=14, max_col=14):
-                for cell in row:
-                    if cell.value:
-                        # Remover pontos e vírgulas
-                        cleaned_value = cell.value.replace('.', '').replace(',', '')
-                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
-                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                        cell.value = float_value
-            for row in ws.iter_rows(min_row=2, min_col=15, max_col=15):
-                for cell in row:
-                    if cell.value:
-                        # Remover pontos e vírgulas
-                        cleaned_value = cell.value.replace('.', '').replace(',', '')
-                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
-                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                        cell.value = float_value
-        if tipo == "Original":
-            for row in ws.iter_rows(min_row=2, min_col=4, max_col=4):
-                for cell in row:
-                    if cell.value:
-                        # Remover pontos e vírgulas
-                        cleaned_value = cell.value.replace('R$', '').replace('.', '').replace(',', '').replace('+', '')
-                        # Verificar se o último caractere é "-" e converter para negativo se necessário
-                        if cleaned_value.startswith('-') or cleaned_value.startswith('--') :
-                            cleaned_value = '-' + cleaned_value[3:]
-                        # Converter para float com duas casas decimais e ajustar as duas últimas casas decimais como parte decimal
-                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                        cell.value = float_value
+                        cell6.value = float_value    
         if tipo == "Santander":
             for row in ws.iter_rows(min_row=2, min_col=4, max_col=4):
                 for cell in row:

@@ -16,7 +16,7 @@ caminho_saida = limpa_caracteres(sys.argv[2])
 tipo = sys.argv[3]
 arquivo_pdf = arquivo_entrada + '.pdf'
 arquivo_txt = caminho_saida + '.txt'
-arquivo_xlsx = caminho_saida + '.xlsx'
+arquivo_csv = caminho_saida + '.xlsx'
 
 match tipo:
     case "Banco do Brasil":
@@ -37,6 +37,8 @@ match tipo:
         classificacao = '0'
     case "City":
         classificacao = '2'
+    case "CityLegivel":
+        classificacao = '0'
     case "Santander":
         classificacao = '1'                          
     case _:
@@ -48,7 +50,7 @@ def chamar_script(script):
     except subprocess.CalledProcessError as e:
         print(f"Erro ao chamar o script {script}: {e}")
 
-def main():
+def main(tipo):
     # Mudar o diretório de trabalho para onde os scripts estão localizados
     caminho_scripts = r"C:\Users\vbarbosa\Documents\Scripts\Python\ProjetoExtratosBancariosPDFtoXLSX\ProjetoExtratosBancariosPDFtoXLSX"
     os.chdir(caminho_scripts)
@@ -61,11 +63,14 @@ def main():
     while not os.path.exists(arquivo_txt):
         time.sleep(1)
 
-    script_txt = f'python TxtToXlsx.py "{arquivo_txt}" "{arquivo_xlsx}" "{tipo}"'
+    if tipo == "CityLegivel":
+        tipo = "City"
+
+    script_txt = f'python TxtToXlsx.py "{arquivo_txt}" "{arquivo_csv}" "{tipo}"'
     # Chama o segundo script
     chamar_script(script_txt)
 
-main()
+main(tipo)
 '''
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/aextrato cons Itau 10704-5 agosto" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/aextrato cons Itau 10704-5 agosto" "Itau"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/caixa 254-2 01 a 15-07" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa 254-2 01 a 15-07" "Caixa"
@@ -80,6 +85,15 @@ python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/202401
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/caixa292-5 - julho-22 (1)" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa292-5 - julho-22 (1)" "Caixa"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/202402 - CITIBANK_90015799 Extrato de Operações (1)" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de OperaÃ§Ãµes (1)" "City"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/202401 - 90016495 - APLICAÇÃO CDB - Extrato de posição" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202401 - 90016495 - APLICAÇÃO CDB - Extrato de posição" "City"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/202402 - CITIBANK_9016495 Extrato de Operações 1" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_9016495 Extrato de Operacoes 1" "City"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/202402 - CITIBANK_90015799 Extrato de Operações 1" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de Operacoes 1" "City"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/202402 - CITIBANK_090034479 Extrato de Operações (2)" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_090034479 Extrato de Operações (2)" "City"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK- Extrato de Operações.90015799" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de Operacoes 90015799" "City"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK- Extrato de Operações.90016495" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de Operacoes 90016495" "CityLegivel"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK- Extrato de Operações.90034479" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de Operacoes 90034479" "CityLegivel"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK- Extrato de Operações.90034479 (1)" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de Operações.90034479 (1)" "CityLegivel"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK- Extrato de Operações.90016495 (1)" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de Operações.90016495 (1)" "CityLegivel"
+python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK- Extrato de operações.90015799 (1)" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de operações.90015799 (1)" "CityLegivel"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/ItauAbril2023" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023" "Itau"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Original Fev" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev" "Original"
 python ConversãoPdfToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/santander" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander" "Santander"
