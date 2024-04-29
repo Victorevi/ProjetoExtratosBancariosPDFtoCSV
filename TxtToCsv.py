@@ -2,6 +2,7 @@ import sys
 import re
 import pandas as pd
 
+
 #Imputs
 txt_path = sys.argv[1]
 csv_path = sys.argv[2]
@@ -13,12 +14,37 @@ python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Bradesco d
 python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/BS2 887946-0.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/BS2 887946-0.csv" "BS2"
 python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - C6_42457718.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - C6_42457718.csv" "C6"
 python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa292-5 - julho-22 (1).txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa292-5 - julho-22 (1).csv" "Caixa"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de operaes.90015799 (1).txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de operaes.90015799 (1).csv" "City"
+python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de operaes.90015799 (1).txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de operaes.90015799 (1).csv" "Citi"
 python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.csv" "Itau"
 python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev.csv" "Original"
 python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander.csv" "Santander"
 python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex.csv" "Travelex"
+python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Dock.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Dock.csv" "Dock"
+python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202403.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202403.csv" "Dock"
+python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/PINBANK 00190465-0.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/PINBANK 00190465-0.csv" "Pinbank"
+python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ITAu_5786-2.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ITAu_5786-2.csv" "ItauBBA"
+
 '''
+
+if tipo == "Dock":
+    with open(txt_path, 'r', encoding='utf-8') as file:
+        # Remover espaços em branco de cada linha e juntar as linhas em uma única string
+        linhas = []
+        linha_anterior_vazia = False
+        for linha in file:
+            linha_stripped = linha.strip()
+            if linha_stripped:
+                linhas.append(linha_stripped.replace(" ", ""))
+                linha_anterior_vazia = False
+            elif not linha_anterior_vazia:
+                linhas.append('')
+                linha_anterior_vazia = True
+
+    # Salvar o texto processado em um novo arquivo
+    with open(txt_path, 'w', encoding='utf-8') as file:
+        file.writelines('\n'.join(linhas))
+        print("Texto processado e salvo com sucesso!")
+
 
 # Ler o texto do arquivo 
 with open(txt_path, 'r', encoding='utf-8') as file:
@@ -32,18 +58,18 @@ with open(txt_path, 'r', encoding='utf-8') as file:
     ordemColunas = None
 
 match tipo:
-    case "Banco do Brasil":
+    case "BancoDoBrasilEmpresaExtratoC/C":
         # Padrão regex
         padrao = r"(\d{2}/\d{2}/\d{4}) (\d{4}) (\d{5}) ([\w\d/. -]+) ([\d.]+) ([ R$\d,.-]+,\d{2}\b)\s*(\w)\s*"
         
         # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto)
+        matches = re.findall(padrao, texto, re.MULTILINE)
 
         # Define padrão de colunas
         #colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor R$', 'Operador', 'Descrição']
-        colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor R$', 'Operador']
+        colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor RS', 'Operador']
 
-    case "Bradesco":
+    case "BradescoNetEmpresaExtratoMensalPPeriodo":
         # Padrão regex
         padrao = r"^(\d{2}/\d{2}/\d{4})*\s*([\w\d./:& -]*\s*[\w\d./:& -]*)\s*(\d+)*\s+([-.\d,]+,\d{2}\b-*)\s*([-.\d,]+,\d{2}\b-*)*"
 
@@ -53,37 +79,37 @@ match tipo:
         # Define padrão de colunas
         colunas = ['Data', 'Lançamento', 'Documento', 'Valor', 'Saldo']
         
-    case "BS2":
+    case "BS2ExtratoEmpresas":
         # Padrão regex
         padrao = r"(\d{2}/\d{2}/\d{4}) ([\w\d./ ]+-*[\w\d./ ]+) ([R$ \d,.-]+,\d{2}\b)"
 
         # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto)
+        matches = re.findall(padrao, texto, re.MULTILINE)
 
         # Define padrão de colunas
         colunas = ['Data', 'Descrição', 'Valor']
         
-    case "C6":
+    case "C6ExtratoC/C":
         # Padrão regex
         padrao = r"(\d{2}/\d{2}/\d{4}) ([\w\d./ -]*) (\d{12})+ ([-.\d,]+,\d{2}\b) ([CD])"
 
         # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto)
+        matches = re.findall(padrao, texto, re.MULTILINE)
 
         # Define padrão de colunas
         colunas = ['Data', 'Descrição', 'Documento', 'Valor', 'Operador']
         
-    case "Caixa":
+    case "CaixaExtratoPPeriodo":
         # Padrão regex
         padrao = r"(\d{2}/\d{2}/\d{4}) (\d{6}) ([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*) (\w) ([-.\d,]+,\d{2}\b-*) (\w)"
 
         # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto)
+        matches = re.findall(padrao, texto, re.MULTILINE)
 
         # Define padrão de colunas
         colunas = ['Data', 'Nº Documento', 'Histórico', 'Valor', 'Operador Valor', 'Saldo', 'Operador Saldo']
         
-    case "City":
+    case "CitiExtratoOperacoes":
         # Padrão regex
         padrao_antecipada = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*\s+(\d*)\s*([-.\d,\d{2}]*(?=))"
         padrao_liquidada = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))"
@@ -98,9 +124,49 @@ match tipo:
         matches_liquidada = re.findall(padrao_liquidada, parte2, re.MULTILINE)
 
         # Define padrão de colunas
-        colunas = ['Número da Operação', 'Título', 'Data de Início', 'Data de Vencimento', 'Data de Liquidação', 'Indexador', '(%) do Indexador', 'Taxa Original (a.a)', 'Valor Inicial da Aplicação (R$)', 'Valor Base da Aplicação Corrigido (R$)', 'Rendimento Bruto do Título (R$)', 'IOF (R$)', 'IRRF (R$)', 'Rendimento Líquido do Título (R$)', 'Valor Base de Aplicação Liquido (R$)', 'Tipo Bloqueio', '% Resgate Antecipado']
-        
-    case "Itau":
+        colunas = ['Número da Operação', 'Título', 'Data de Início', 'Data de Vencimento', 'Data de Liquidação', 'Indexador', '(%) do Indexador', 'Taxa Original (a.a)', 'Valor Inicial da Aplicação (RS)', 'Valor Base da Aplicação Corrigido (RS)', 'Rendimento Bruto do Título (RS)', 'IOF (RS)', 'IRRF (RS)', 'Rendimento Líquido do Título (RS)', 'Valor Base de Aplicação Liquido (RS)', 'Tipo Bloqueio', '% Resgate Antecipado']
+
+    case "CitiExtratoC/C":
+        # Padrão regex
+        padrao = r"^(\d{2}/\d{2}/\d{4})+\s+(\d{2}/\d{2}/\d{4})*\s*(\d{4})*\s*([ \w\d./-]+)\s+([-.\d,]*,\d{2}\b-*)+"
+
+        # Procurando por todas as correspondências no texto
+        matches = re.findall(padrao, texto, re.MULTILINE)
+
+        # Define padrão de colunas
+        colunas = ['Data Process', 'Data Valor', 'Código', 'Descrição', 'Valor']
+
+    case "CitiExtratoConta":
+        # Padrão regex
+        padrao = r"^(\d{2}/\d{2}/\d{4})+ +(\d{2}/\d{2}/\d{4})+ +([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*)\n([\w\d./ -]+)+\n"
+
+        # Procurando por todas as correspondências no texto
+        matches = re.findall(padrao, texto, re.MULTILINE)
+
+        # Define padrão de colunas
+        colunas = ['Periodo de Entrada', 'Data', 'Referências', 'Valor', 'Descrição']
+
+    case "CitiExtratoC/IAuto":
+        # Padrão regex
+        padrao = r"^([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*) *([\w\d.,:/ -]+)*\n(\d+)+\n+(\d{2}/\d{2}/\d{4})+\n+(\d{2}/\d{2}/\d{4})+\n+"
+
+        # Procurando por todas as correspondências no texto
+        matches = re.findall(padrao, texto, re.MULTILINE)
+
+        # Define padrão de colunas
+        colunas = ['Data Entrada', 'Data Valor', 'Referência Banco', 'Descrição', 'Valor', 'Detalhes']
+
+    case "Dock":
+        # Padrão regex
+        padrao = r"^(.+)\n(\d{2}/\d{2}/\d{4})+[\d:-]+(\w+)+([-+]+[.\d,]*,\d{2}\b)+\n+([\w\d./-]+)+"
+
+        # Procurando por todas as correspondências no texto
+        matches = re.findall(padrao, texto, re.MULTILINE)
+
+        # Define padrão de colunas
+        colunas = ['Data', 'Descrição', 'Status', 'Valor']
+
+    case "ItauExtratoC/C-A/A":
         # Padrão regex
         padraoCabecalho = r"(pela Bolsa de Valores )+(\d{2}/\d{2})+([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(D = débito a compensar )+(\d{2}/\d{2})+([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(G = aplicação programada )+(\d{2}/\d{2})*([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(P = poupança automática )(\d{2}/\d{2})*([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))"
         padraoCorpo = r"^(?!.*SALDO APLIC AUT MAIS)(\d{2}/\d{2})*([\w\d.,/& -]*?) ([-.\d,]+,\d{2}\b-*) *([-.\d,]+,\d{2}\b-*)*"
@@ -111,7 +177,7 @@ match tipo:
         parte2 = texto[indice_split:]
 
         # Encontrar o índice do trecho "totalizador de aplicações automáticas entrada R$ saída R$"
-        indice_split2 = parte2.find("totalizador de aplicações automáticas entrada R$ saída R$")
+        indice_split2 = parte2.find("totalizador de aplicações automáticas entrada R$ saída RS")
         parte2Usavel = parte2[:indice_split2]
 
         # Procurando por todas as correspondências no texto
@@ -120,33 +186,58 @@ match tipo:
 
         # Define padrão de colunas
         colunas = ['Data', 'Descrição', 'Valor', 'Saldo']
+
+    case "ItauBBA":
+        # Padrão regex
+        padrao = r"^*(\d{2} */ *\w{3})+ +(.+)\s+(-*[.\d,]+,\d{2})+"
         
-    case "Original":
+        # Procurando por todas as correspondências no texto
+        matches = re.findall(padrao, texto, re.MULTILINE)
+
+        # Define padrão de colunas
+        colunas = ['Data', 'Lançamento', 'Valor']
+        
+        # Pega ano
+        regex_ano = r"(lançamentos período: )+.+[/]+(\d+)"
+        pega_ano = re.search(regex_ano, texto).group(2)
+        print(pega_ano)
+        
+    case "OriginalExtratoConta":
         # Padrão regex
         padrao = r"([\w\d./ -]*)\n(\d{2}/\d{2}/\d{4}) (\w+) ([+-]* [R$]+ [-.\d,]+,\d{2}\b)\n([\w\d./ -]*)"
 
         # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto)
+        matches = re.findall(padrao, texto, re.MULTILINE)
 
         # Define padrão de colunas
         colunas = ['Data', 'Lançamento', 'Tipo', 'Valor', 'Descrição']
 
-    case "Santander":
+    case "PinbankExtratoContaP/L":
+        # Padrão regex
+        padrao = r"^(\d{2}/\d{2}/\d{4})+ +[\d:-]*([ \w\d./-]+)+ +[RSrsR$ ]*([.\d,]+)+ *(\w+)*\n"
+
+        # Procurando por todas as correspondências no texto
+        matches = re.findall(padrao, texto, re.MULTILINE)
+
+        # Define padrão de colunas
+        colunas = ['Data', 'Descrição', 'Valor', 'Operador']
+
+    case "SantanderExtrato":
         # Padrão regex
         padrao = r"(\d{2}/\d{2}/\d{4})+\s+([\w\d., /-]*)\s+(\d{6}|[\w/]{6})+\s+([-.\d,]+,\d{2}\b)"
 
         # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto)
+        matches = re.findall(padrao, texto, re.MULTILINE)
 
         # Define padrão de colunas
         colunas = ['Data', 'Histórico', 'Nº Documento', 'Valor']
 
-    case "Travelex":
+    case "TravelexExtratoC/C":
         # Padrão regex
         padrao = r"\d{2}/\d{2}/\d{4}\n(\d{2}/\d{2}/\d{4})\n\d{2}:\d{2}\n([\w\sç]*\n(?!.*LIQUIDACAO)\w*)\n([\w\s\d\n./:|-]*(?=))\b(?:Sim|Não)\b ([-.\d,\d{2}]*(?=)) ([-.\d,\d{2}]*(?=))"
 
         # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto)
+        matches = re.findall(padrao, texto, re.MULTILINE)
 
         # Define padrão de colunas
         colunas = ['Data', 'Tipo', 'Detalhes', 'Valor', 'Saldo']
@@ -155,14 +246,14 @@ match tipo:
         raise ValueError("Tipo inválido!")
 
 
-if tipo == "Banco do Brasil":
+if tipo == "BancoDoBrasilEmpresaExtratoC/C":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
         df = pd.DataFrame(matches, columns=colunas)
 
         # Iterar sobre as células da planilha para limpar os valores
         for index, row in df.iterrows():
-            valor = row['Valor R$']
+            valor = row['Valor RS']
             operador = row['Operador']
 
             # Remover pontos e vírgulas do valor
@@ -176,21 +267,21 @@ if tipo == "Banco do Brasil":
                 # Tentar converter para float
                 float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
                 # Atualizar o valor na coluna 'Valor'
-                df.at[index, 'Valor R$'] = float_value
+                df.at[index, 'Valor RS'] = float_value
             # Tratar casos onde a conversão falha
             except ValueError:
                 # Atribuir um valor padrão ou NaN para valores inválidos
-                df.at[index, 'Valor R$'] = ''
+                df.at[index, 'Valor RS'] = ''
 
         # Converter a coluna "Valor" para tipo numérico
-        df['Valor R$'] = pd.to_numeric(df['Valor R$'], errors='coerce')
+        df['Valor RS'] = pd.to_numeric(df['Valor RS'], errors='coerce')
         
         df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
         print(f"Arquivo CSV criado com sucesso em: {csv_path}")
     else:
         print("Nenhuma correspondência encontrada.")
         
-if tipo == "Bradesco":
+if tipo == "BradescoNetEmpresaExtratoMensalPPeriodo":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
         df = pd.DataFrame(matches, columns=colunas)
@@ -221,7 +312,7 @@ if tipo == "Bradesco":
     else:
         print("Nenhuma correspondência encontrada.")
 
-if tipo == "BS2":
+if tipo == "BS2ExtratoEmpresas":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
         df = pd.DataFrame(matches, columns=colunas)
@@ -251,7 +342,7 @@ if tipo == "BS2":
     else:
         print("Nenhuma correspondência encontrada.")
 
-if tipo == "C6":
+if tipo == "C6ExtratoC/C":
     #Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
         df = pd.DataFrame(matches, columns=colunas)
@@ -281,7 +372,7 @@ if tipo == "C6":
     else:
         print("Nenhuma correspondência encontrada.")
 
-if tipo == "Caixa":
+if tipo == "CaixaExtratoPPeriodo":
     #Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
         df = pd.DataFrame(matches, columns=colunas)
@@ -315,7 +406,7 @@ if tipo == "Caixa":
     else:
         print("Nenhuma correspondência encontrada.")
 
-if tipo == "City":
+if tipo == "CitiExtratoOperacoes":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches_antecipada and matches_liquidada:
         # Reorganizar a ordem das colunas das correspondências
@@ -353,20 +444,253 @@ if tipo == "City":
             df[coluna] = pd.to_numeric(df[coluna], errors='coerce')
 
         # Iterar sobre as células da planilha para limpar os valores
-        itera_valor('Valor Inicial da Aplicação (R$)')
-        itera_valor('Valor Base da Aplicação Corrigido (R$)')
-        itera_valor('Rendimento Bruto do Título (R$)')
-        itera_valor('IOF (R$)')
-        itera_valor('IRRF (R$)')
-        itera_valor('Rendimento Líquido do Título (R$)')
-        itera_valor('Valor Base de Aplicação Liquido (R$)')
+        itera_valor('Valor Inicial da Aplicação (RS)')
+        itera_valor('Valor Base da Aplicação Corrigido (RS)')
+        itera_valor('Rendimento Bruto do Título (RS)')
+        itera_valor('IOF (RS)')
+        itera_valor('IRRF (RS)')
+        itera_valor('Rendimento Líquido do Título (RS)')
+        itera_valor('Valor Base de Aplicação Liquido (RS)')
 
         df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
         print(f"Arquivo CSV criado com sucesso em: {csv_path}")
     else:
         print("Nenhuma correspondência encontrada.")
 
-if tipo == "Itau":
+if tipo == "CitiExtratoC/C":
+     # Se houver correspondências, escrever os dados em um arquivo CSV
+    if matches:
+        def tirar_linhas_saldo_do_meio_do_documento(array):
+            # Criar uma nova array para armazenar as arrays que serão removidas
+            arrays_removidas = []
+
+            # Iterar sobre a array para encontrar e remover as arrays com "SALDO FINAL" e "SALDO DISPONÍVEL"
+            for subarray in array[:]:  # Usando [:] para fazer uma cópia da lista e permitir alterações durante a iteração
+                if subarray[3] in ["SALDO FINAL", "SALDO DISPONÍVEL"]:
+                    arrays_removidas.append(subarray)
+                    array.remove(subarray)
+
+            # Pegar a última array da nova array e movê-la de volta para a array original
+            if arrays_removidas:
+                array.append(arrays_removidas[-1])
+
+            return array
+
+        macthes = tirar_linhas_saldo_do_meio_do_documento(matches)
+
+        df = pd.DataFrame(matches, columns=colunas)
+
+        # Iterar sobre as células da planilha para limpar os valores
+        for index, row in df.iterrows():
+            # Remover pontos e vírgulas
+            cleaned_value = str(row['Valor']).replace('.', '').replace(',', '').replace('--','-')
+            
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                # Atualizar o valor na coluna 'Valor'
+                df.at[index, 'Valor'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                print(cleaned_value)
+                print("valor não encontrado")
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Valor'] = ''
+        
+        # Converter a coluna "Valor" para tipo numérico
+        df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+        print(f"Arquivo CSV criado com sucesso em: {csv_path}")
+    else:
+        print("Nenhuma correspondência encontrada.")
+
+if tipo == "CitiExtratoConta":
+    # Se houver correspondências, escrever os dados em um arquivo CSV
+    if matches:
+        df = pd.DataFrame(matches, columns=colunas)
+
+        # Iterar sobre as células da planilha para limpar os valores
+        for index, row in df.iterrows():
+            # Remover pontos e vírgulas
+            cleaned_value = str(row['Valor']).replace('.', '').replace(',', '').replace('--','-')
+            # Verificar se o último caractere é "-" e converter para negativo se necessário
+            if cleaned_value.endswith('-'):
+                cleaned_value = '-' + cleaned_value[:-1]
+            
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                # Atualizar o valor na coluna 'Valor'
+                df.at[index, 'Valor'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                print(cleaned_value)
+                print("valor não encontrado")
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Valor'] = ''
+        
+        # Converter a coluna "Valor" para tipo numérico
+        df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+        print(f"Arquivo CSV criado com sucesso em: {csv_path}")
+    else:
+        print("Nenhuma correspondência encontrada.")
+
+if tipo == "CitiExtratoC/IAuto":
+    # Se houver correspondências, escrever os dados em um arquivo CSV
+    if matches:
+        # Reorganizar a ordem das colunas das correspondências
+        matches_ordenados = []
+        for match in matches:
+                matches_corpo_ordenados = [match[4], match[5], match[3], match[0], match[1], match[2]]
+                matches_ordenados.append(matches_corpo_ordenados)
+
+        df = pd.DataFrame(matches_ordenados, columns=colunas)
+
+        # Iterar sobre as células da planilha para limpar os valores
+        for index, row in df.iterrows():
+            # Remover pontos e vírgulas
+            cleaned_value = str(row['Valor']).replace('.', '').replace(',', '').replace('--','-')
+            # Verificar se o último caractere é "-" e converter para negativo se necessário
+            if cleaned_value.endswith('-'):
+                cleaned_value = '-' + cleaned_value[:-1]
+            
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                # Atualizar o valor na coluna 'Valor'
+                df.at[index, 'Valor'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                print(cleaned_value)
+                print("valor não encontrado")
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Valor'] = ''
+        
+        # Converter a coluna "Valor" para tipo numérico
+        df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+        print(f"Arquivo CSV criado com sucesso em: {csv_path}")
+    else:
+        print("Nenhuma correspondência encontrada.")
+
+if tipo == "Dock":
+    # Se houver correspondências, escrever os dados em um arquivo CSV
+    if matches:
+        # Reorganizar a ordem das colunas das correspondências
+        matches_ordenados = []
+        for match in matches:
+                descricao = match[0]+match[4]
+                status = match[2][:-2]
+                matches_corpo_ordenados = [match[1], descricao, status, match[3]]
+                matches_ordenados.append(matches_corpo_ordenados)
+
+        df = pd.DataFrame(matches_ordenados, columns=colunas)
+
+        # Iterar sobre as células da planilha para limpar os valores
+        for index, row in df.iterrows():
+            # Remover pontos e vírgulas
+            cleaned_value = str(row['Valor']).replace('.', '').replace(',', '').replace('--','-')
+            
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                # Atualizar o valor na coluna 'Valor'
+                df.at[index, 'Valor'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                print(cleaned_value)
+                print("valor não encontrado")
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Valor'] = ''
+        
+        # Converter a coluna "Valor" para tipo numérico
+        df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+        print(f"Arquivo CSV criado com sucesso em: {csv_path}")
+    else:
+        tipo = "Dock2"
+
+        # Padrão regex
+        padrao1 = r"^\n([\d/]+)+[\d:;-]+(.+)[Rr]+[sS$]+([-+.\d,]+)+]*[|]*[Uu]+[Ss$]+[Ss$]+([-+.\d,]+)"
+        padrao2 = r"^(.+)\n([\d/]+)+[\d;:-]+(\w+)+[Rr]+[sS$]+([-+.\d,]+)+]*[|]*[Uu]+[Ss$]+[Ss$]+([-+.\d,]+)\n(\w+)"
+
+        # Procurando por todas as correspondências no texto
+        matches1 = re.findall(padrao1, texto, re.MULTILINE)
+        matches2 = re.findall(padrao2, texto, re.MULTILINE)
+
+        # Define padrão de colunas
+        colunas1 = ['Data', 'Descrição', 'Valor RS', 'Valor USS']
+
+        # Se houver correspondências, escrever os dados em um arquivo CSV
+        if matches1 and matches2:
+            # Reorganizar a ordem das colunas das correspondências
+            matches_ordenados = []
+            for match in matches1:
+                matches_corpo_ordenados = [match[0], match[1], match[2], match[3]]
+                matches_ordenados.append(matches_corpo_ordenados)
+
+            for match in matches2:
+                descricao = match[0]+match[5]+match[2]
+                matches_corpo_ordenados = [match[1], descricao, match[3], match[4]]
+                matches_ordenados.append(matches_corpo_ordenados)
+
+            df = pd.DataFrame(matches_ordenados, columns=colunas1)
+
+            # Iterar sobre as células da planilha para limpar os valores
+            for index, row in df.iterrows():
+                # Remover pontos e vírgulas
+                cleaned_value = str(row['Valor RS']).replace('.', '').replace(',', '').replace('--','-')
+                
+                try:
+                    # Tentar converter para float
+                    float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                    # Atualizar o valor na coluna 'Valor'
+                    df.at[index, 'Valor RS'] = float_value
+                # Tratar casos onde a conversão falha
+                except ValueError:
+                    print(cleaned_value)
+                    print("valor não encontrado")
+                    # Atribuir um valor padrão ou NaN para valores inválidos
+                    df.at[index, 'Valor RS'] = ''
+
+                # Iterar sobre as células da planilha para limpar os valores
+                for index, row in df.iterrows():
+                    # Remover pontos e vírgulas
+                    cleaned_value = str(row['Valor USS']).replace('.', '').replace(',', '').replace('--','-')
+                    
+                    try:
+                        # Tentar converter para float
+                        float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                        # Atualizar o valor na coluna 'Valor'
+                        df.at[index, 'Valor USS'] = float_value
+                    # Tratar casos onde a conversão falha
+                    except ValueError:
+                        print(cleaned_value)
+                        print("valor não encontrado")
+                        # Atribuir um valor padrão ou NaN para valores inválidos
+                        df.at[index, 'Valor USS'] = ''
+                
+            # Converter a coluna "Valor" para tipo numérico
+            df['Valor RS'] = pd.to_numeric(df['Valor RS'], errors='coerce')
+            # Converter a coluna "Valor" para tipo numérico
+            df['Valor USS'] = pd.to_numeric(df['Valor USS'], errors='coerce')
+
+            # Ordenar o DataFrame pela coluna 'Data'
+            df['Data'] = pd.to_datetime(df['Data'], format='%d/%m/%Y')  # Convertendo a coluna 'Data' para datetime
+            df = df.sort_values(by='Data')  # Ordenando o DataFrame pela coluna 'Data'
+
+            df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+            print(f"Arquivo CSV criado com sucesso em: {csv_path}")
+
+        else:
+            print("Nenhuma correspondência encontrada.")
+
+if tipo == "ItauExtratoC/C-A/A":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matchesCabecalho and matchesCorpo:
         # Reorganizar a ordem das colunas das correspondências
@@ -431,8 +755,61 @@ if tipo == "Itau":
     else:
         print("Nenhuma correspondência encontrada.")
 
+if tipo == "ItauBBA":
+    # Se houver correspondências, escrever os dados em um arquivo CSV
+    if matches:
+        df = pd.DataFrame(matches, columns=colunas)
 
-if tipo == "Original":
+        # Iterar sobre as células da planilha para limpar os valores
+        for index, row in df.iterrows():
+            def substituir_data(data):
+                # Expressão regular para encontrar o padrão "dd/Mmm"
+                regex_data = r'(\d{1,2}) */+ *(\w{3})'
+                
+                # Função de substituição
+                def substituir(match):
+                    dia = match.group(1)
+                    mes = match.group(2).capitalize()
+                    
+                    # Dicionário de mapeamento de meses abreviados para números
+                    meses = {'Jan': '01', 'Fev': '02', 'Mar': '03', 'Abr': '04', 'Mai': '05', 'Jun': '06', 'Jul': '07', 'Ago': '08', 'Set': '09', 'Out': '10', 'Nov': '11', 'Dez': '12'}
+                    # Substituir o mês abreviado pelo número correspondente
+                    mes_numero = meses.get(mes)
+                    
+                    # Retornar a data no formato desejado
+                    return f"{dia}/{mes_numero}"
+
+                # Realizar a substituição no data
+                nova_data = re.sub(regex_data, substituir, data)
+                return nova_data
+            
+            data = substituir_data(str(df.at[index, 'Data'])) 
+            data_formatada = f"{data}/{pega_ano}"
+            # Atualizar o valor na coluna 'Valor'
+            df.at[index, 'Data'] = data_formatada
+
+            # Remover pontos e vírgulas
+            cleaned_value = str(row['Valor']).replace('.', '').replace(',', '')
+
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                # Atualizar o valor na coluna 'Valor'
+                df.at[index, 'Valor'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Valor'] = ''
+        
+        # Converter a coluna "Valor" para tipo numérico
+        df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+        print(f"Arquivo CSV criado com sucesso em: {csv_path}")
+    else:
+        print("Nenhuma correspondência encontrada.")
+
+if tipo == "OriginalExtratoConta":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
         # Reorganizar a ordem das colunas das correspondências
@@ -468,9 +845,41 @@ if tipo == "Original":
         print(f"Arquivo CSV criado com sucesso em: {csv_path}")
     else:
         print("Nenhuma correspondência encontrada.")
-    
-if tipo == "Santander":
-     # Se houver correspondências, escrever os dados em um arquivo CSV
+
+if tipo == "PinbankExtratoContaP/L":
+    # Se houver correspondências, escrever os dados em um arquivo CSV
+    if matches:
+        df = pd.DataFrame(matches, columns=colunas)
+
+        # Iterar sobre as células da planilha para limpar os valores
+        for index, row in df.iterrows():
+            # Remover pontos e vírgulas
+            cleaned_value = str(row['Valor']).replace('.', '').replace(',', '')
+
+            # Verificar se o último caractere é "-" e converter para negativo se necessário
+            if row['Operador'].startswith('D'):
+                cleaned_value = '-' + cleaned_value[0:]
+
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                # Atualizar o valor na coluna 'Valor'
+                df.at[index, 'Valor'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Valor'] = ''
+        
+        # Converter a coluna "Valor" para tipo numérico
+        df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+        print(f"Arquivo CSV criado com sucesso em: {csv_path}")
+    else:
+        print("Nenhuma correspondência encontrada.")
+
+if tipo == "SantanderExtrato":
+    # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
         df = pd.DataFrame(matches, columns=colunas)
 
@@ -497,7 +906,7 @@ if tipo == "Santander":
     else:
         print("Nenhuma correspondência encontrada.")
 
-if tipo == "Travelex":
+if tipo == "TravelexExtratoC/C":
      # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
         df = pd.DataFrame(matches, columns=colunas)
@@ -527,3 +936,181 @@ if tipo == "Travelex":
         print(f"Arquivo CSV criado com sucesso em: {csv_path}")
     else:
         print("Nenhuma correspondência encontrada.")
+
+def padroniza_docs(mapeamento_colunas, csv_path):
+
+    # Definir a ordem padrão das colunas
+    padrao_colunas = ['Data', 'Tipo', 'Valor', 'Descricao']
+
+    # Criar um DataFrame vazio com as colunas na ordem desejada
+    dados_reordenados = pd.DataFrame(columns=padrao_colunas)
+
+    # Preencher as colunas reordenadas com os dados originais na ordem padrão
+    for coluna_padrao in padrao_colunas:
+        if coluna_padrao in mapeamento_colunas.values():
+            coluna_original = next((col for col, mapped_col in mapeamento_colunas.items() if mapped_col == coluna_padrao), None)
+            if coluna_original:
+                if coluna_padrao == 'Data':
+                    dados_reordenados[coluna_padrao] = df[coluna_original].str.replace('/', '-').str.replace('\\', '-')
+                else:
+                    dados_reordenados[coluna_padrao] = df[coluna_original]
+            else:
+                dados_reordenados[coluna_padrao] = None
+        else:
+            dados_reordenados[coluna_padrao] = None
+
+    # Salvar o novo DataFrame em um novo arquivo CSV
+    dados_reordenados.to_csv(csv_path, index=False, sep=';', encoding='utf-8-sig')
+    print("Arquivo padronizado salvo com sucesso!")
+
+# Mapear as colunas do arquivo original para as colunas na ordem padrão
+match tipo:
+    case "BancoDoBrasilEmpresaExtratoC/C":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Histórico': 'Tipo',
+        'Valor RS': 'Valor',
+        'Documento': 'Descricao' 
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "BradescoNetEmpresaExtratoMensalPPeriodo":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Lançamento': 'Tipo',
+        'Valor': 'Valor',
+        'Documento': 'Descricao' 
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+        
+    case "BS2ExtratoEmpresas":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+        
+    case "C6ExtratoC/C":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor',
+        'Documento': 'Descricao'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "CaixaExtratoPPeriodo":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Histórico': 'Tipo',
+        'Valor': 'Valor',
+        'Nº Documento': 'Descricao' 
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+        
+    case "CitiExtratoConta":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor',
+        'Referências': 'Descricao'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+        
+    case "CitiExtratoC/C":
+        mapeamento_colunas = {
+        'Data Valor': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor',
+        'Código': 'Descricao'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "CitiExtratoC/IAuto":
+        mapeamento_colunas = {
+        'Data Valor': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor',
+        'Detalhes': 'Descricao'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "Dock":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor',
+        'Valor RS': 'Valor',
+        'Status': 'Descricao'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "ItauBBA":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Lançamento': 'Tipo',
+        'Valor': 'Valor'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+      
+    case "ItauExtratoC/C-A/A":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+  
+    case "OriginalExtratoConta":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Lançamento': 'Tipo',
+        'Valor': 'Valor',
+        'Descrição': 'Descricao'
+        }
+        
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "PinbankExtratoContaP/L":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "SantanderExtrato":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Histórico': 'Tipo',
+        'Valor': 'Valor',
+        'Nº Documento': 'Descricao'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "TravelexExtratoC/C":
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Tipo': 'Tipo',
+        'Valor': 'Valor',
+        'Detalhes': 'Descricao'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+                                  
+    case _:
+        raise ValueError("Tipo inválido!")
