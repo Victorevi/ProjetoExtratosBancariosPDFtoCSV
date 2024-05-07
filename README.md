@@ -22,6 +22,7 @@ Este é um conjunto de scripts em Python para converter documentos PDF em arquiv
 - Python 3.x
 - Bibliotecas Python: pandas, poppler-utils, ocrmypdf
 - Scoop para instalação: ghostscript, tesseract, poppler
+
 "Para utilização de idiomas no tesseract utilize o tesseract-languages disponível em:
 https://github.com/tesseract-ocr/tessdata_fast"
 

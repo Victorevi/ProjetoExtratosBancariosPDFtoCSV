@@ -27,5 +27,3 @@ if matches:
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
-
-#python converte_bancoDoBrasil.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Banco do Brasil janeiro 2022  cc 51734-8.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Banco do Brasil janeiro 2022  cc 51734-8.xlsx"

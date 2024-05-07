@@ -27,5 +27,3 @@ if matches:
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
-
-#python converte_Original.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev.xlsx"

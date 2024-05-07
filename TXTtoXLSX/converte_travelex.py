@@ -27,5 +27,3 @@ if matches:
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
-
-#python converte_travelex.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex_ORC.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex_ORC.xlsx"

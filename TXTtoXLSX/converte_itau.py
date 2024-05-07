@@ -75,5 +75,3 @@ if matchesCabecalho and matchesCorpo:
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
-
-#python converte_itau.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.xlsx"

@@ -27,5 +27,3 @@ if matches:
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
-
-#python converte_city.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de OperaÃ§Ãµes (1)_ORC.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de OperaÃ§Ãµes (1)_ORC.xlsx"

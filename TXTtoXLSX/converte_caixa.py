@@ -27,5 +27,3 @@ if matches:
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
-
-#python converte_caixa.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa 254-2 01 a 15-07.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa 254-2 01 a 15-07.xlsx"

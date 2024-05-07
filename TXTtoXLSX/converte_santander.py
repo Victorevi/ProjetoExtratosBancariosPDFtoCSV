@@ -27,7 +27,3 @@ if matches:
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
-
-'''
-python converte_santander.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander1.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander_ORC.xlsx"
-'''

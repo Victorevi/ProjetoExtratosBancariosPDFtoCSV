@@ -27,5 +27,3 @@ if matches:
     print(f"Arquivo XLSX criado com sucesso em: {xlsx_path}")
 else:
     print("Nenhuma correspondência encontrada.")
-
-#python converte_c6.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/c6.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/c6.xlsx"
