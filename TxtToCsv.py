@@ -2,29 +2,10 @@ import sys
 import re
 import pandas as pd
 
-
 #Imputs
 txt_path = sys.argv[1]
 csv_path = sys.argv[2]
 tipo = sys.argv[3]
-'''
-Tipo:
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/29012024-Extrato BB (parcial).txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/29012024-Extrato BB (parcial).csv" "Banco do Brasil"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Bradesco dez.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Bradesco dez.csv" "Bradesco"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/BS2 887946-0.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/BS2 887946-0.csv" "BS2"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - C6_42457718.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - C6_42457718.csv" "C6"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa292-5 - julho-22 (1).txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa292-5 - julho-22 (1).csv" "Caixa"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de operaes.90015799 (1).txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de operaes.90015799 (1).csv" "Citi"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.csv" "Itau"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev.csv" "Original"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander.csv" "Santander"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex.csv" "Travelex"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Dock.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Dock.csv" "Dock"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202403.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202403.csv" "Dock"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/PINBANK 00190465-0.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/PINBANK 00190465-0.csv" "Pinbank"
-python TxtToCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ITAu_5786-2.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ITAu_5786-2.csv" "ItauBBA"
-
-'''
 
 if tipo == "Dock":
     with open(txt_path, 'r', encoding='utf-8') as file:
@@ -56,194 +37,200 @@ with open(txt_path, 'r', encoding='utf-8') as file:
     matchesCabecalho = None
     matchesCorpo = None
     ordemColunas = None
+# Tente encontrar todas as correspondências no texto
+try:
+    match tipo:
+        case "BancoDoBrasilEmpresaExtratoC/C":
+            # Padrão regex
+            padrao = r"(\d{2}/\d{2}/\d{4}) (\d{4}) (\d{5}) ([\w\d/. -]+) ([\d.]+) ([ R$\d,.-]+,\d{2}\b)\s*(\w)\s*"
+            
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-match tipo:
-    case "BancoDoBrasilEmpresaExtratoC/C":
-        # Padrão regex
-        padrao = r"(\d{2}/\d{2}/\d{4}) (\d{4}) (\d{5}) ([\w\d/. -]+) ([\d.]+) ([ R$\d,.-]+,\d{2}\b)\s*(\w)\s*"
-        
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            #colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor R$', 'Operador', 'Descrição']
+            colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor RS', 'Operador']
 
-        # Define padrão de colunas
-        #colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor R$', 'Operador', 'Descrição']
-        colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor RS', 'Operador']
+        case "BradescoNetEmpresaExtratoMensalPPeriodo":
+            # Padrão regex
+            padrao = r"^(\d{2}/\d{2}/\d{4})*\s*([\w\d./:& -]*\s*[\w\d./:& -]*)\s*(\d+)*\s+([-.\d,]+,\d{2}\b-*)\s*([-.\d,]+,\d{2}\b-*)*"
 
-    case "BradescoNetEmpresaExtratoMensalPPeriodo":
-        # Padrão regex
-        padrao = r"^(\d{2}/\d{2}/\d{4})*\s*([\w\d./:& -]*\s*[\w\d./:& -]*)\s*(\d+)*\s+([-.\d,]+,\d{2}\b-*)\s*([-.\d,]+,\d{2}\b-*)*"
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Data', 'Lançamento', 'Documento', 'Valor', 'Saldo']
+            
+        case "BS2ExtratoEmpresas":
+            # Padrão regex
+            padrao = r"(\d{2}/\d{2}/\d{4}) ([\w\d./ ]+-*[\w\d./ ]+) ([R$ \d,.-]+,\d{2}\b)"
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Lançamento', 'Documento', 'Valor', 'Saldo']
-        
-    case "BS2ExtratoEmpresas":
-        # Padrão regex
-        padrao = r"(\d{2}/\d{2}/\d{4}) ([\w\d./ ]+-*[\w\d./ ]+) ([R$ \d,.-]+,\d{2}\b)"
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Data', 'Descrição', 'Valor']
+            
+        case "C6ExtratoC/C":
+            # Padrão regex
+            padrao = r"(\d{2}/\d{2}/\d{4}) ([\w\d./ -]*) (\d{12})+ ([-.\d,]+,\d{2}\b) ([CD])"
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Descrição', 'Valor']
-        
-    case "C6ExtratoC/C":
-        # Padrão regex
-        padrao = r"(\d{2}/\d{2}/\d{4}) ([\w\d./ -]*) (\d{12})+ ([-.\d,]+,\d{2}\b) ([CD])"
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Data', 'Descrição', 'Documento', 'Valor', 'Operador']
+            
+        case "CaixaExtratoPPeriodo":
+            # Padrão regex
+            padrao = r"(\d{2}/\d{2}/\d{4}) (\d{6}) ([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*) (\w) ([-.\d,]+,\d{2}\b-*) (\w)"
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Descrição', 'Documento', 'Valor', 'Operador']
-        
-    case "CaixaExtratoPPeriodo":
-        # Padrão regex
-        padrao = r"(\d{2}/\d{2}/\d{4}) (\d{6}) ([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*) (\w) ([-.\d,]+,\d{2}\b-*) (\w)"
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Data', 'Nº Documento', 'Histórico', 'Valor', 'Operador Valor', 'Saldo', 'Operador Saldo']
+            
+        case "CitiExtratoOperacoes":
+            # Padrão regex
+            padrao_antecipada = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*\s+(\d*)\s*([-.\d,\d{2}]*(?=))"
+            padrao_liquidada = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))"
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Nº Documento', 'Histórico', 'Valor', 'Operador Valor', 'Saldo', 'Operador Saldo']
-        
-    case "CitiExtratoOperacoes":
-        # Padrão regex
-        padrao_antecipada = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*\s+(\d*)\s*([-.\d,\d{2}]*(?=))"
-        padrao_liquidada = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))"
+            # Encontrar o índice do trecho "Para demais siglas, consulte as Notas"
+            indice_split = texto.find("Operações Liquidadas")
+            parte1 = texto[:indice_split]
+            parte2 = texto[indice_split:]
 
-        # Encontrar o índice do trecho "Para demais siglas, consulte as Notas"
-        indice_split = texto.find("Operações Liquidadas")
-        parte1 = texto[:indice_split]
-        parte2 = texto[indice_split:]
+            # Procurando por todas as correspondências no texto
+            matches_antecipada = re.findall(padrao_antecipada, parte1, re.MULTILINE)
+            matches_liquidada = re.findall(padrao_liquidada, parte2, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches_antecipada = re.findall(padrao_antecipada, parte1, re.MULTILINE)
-        matches_liquidada = re.findall(padrao_liquidada, parte2, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Número da Operação', 'Título', 'Data de Início', 'Data de Vencimento', 'Data de Liquidação', 'Indexador', '(%) do Indexador', 'Taxa Original (a.a)', 'Valor Inicial da Aplicação (RS)', 'Valor Base da Aplicação Corrigido (RS)', 'Rendimento Bruto do Título (RS)', 'IOF (RS)', 'IRRF (RS)', 'Rendimento Líquido do Título (RS)', 'Valor Base de Aplicação Liquido (RS)', 'Tipo Bloqueio', '% Resgate Antecipado']
 
-        # Define padrão de colunas
-        colunas = ['Número da Operação', 'Título', 'Data de Início', 'Data de Vencimento', 'Data de Liquidação', 'Indexador', '(%) do Indexador', 'Taxa Original (a.a)', 'Valor Inicial da Aplicação (RS)', 'Valor Base da Aplicação Corrigido (RS)', 'Rendimento Bruto do Título (RS)', 'IOF (RS)', 'IRRF (RS)', 'Rendimento Líquido do Título (RS)', 'Valor Base de Aplicação Liquido (RS)', 'Tipo Bloqueio', '% Resgate Antecipado']
+        case "CitiExtratoC/C":
+            # Padrão regex
+            padrao = r"^(\d{2}/\d{2}/\d{4})+\s+(\d{2}/\d{2}/\d{4})*\s*(\d{4})*\s*([ \w\d./-]+)\s+([-.\d,]*,\d{2}\b-*)+"
 
-    case "CitiExtratoC/C":
-        # Padrão regex
-        padrao = r"^(\d{2}/\d{2}/\d{4})+\s+(\d{2}/\d{2}/\d{4})*\s*(\d{4})*\s*([ \w\d./-]+)\s+([-.\d,]*,\d{2}\b-*)+"
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Data Process', 'Data Valor', 'Código', 'Descrição', 'Valor']
 
-        # Define padrão de colunas
-        colunas = ['Data Process', 'Data Valor', 'Código', 'Descrição', 'Valor']
+        case "CitiExtratoConta":
+            # Padrão regex
+            padrao = r"^(\d{2}/\d{2}/\d{4})+ +(\d{2}/\d{2}/\d{4})+ +([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*)\n([\w\d./ -]+)+\n"
 
-    case "CitiExtratoConta":
-        # Padrão regex
-        padrao = r"^(\d{2}/\d{2}/\d{4})+ +(\d{2}/\d{2}/\d{4})+ +([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*)\n([\w\d./ -]+)+\n"
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Periodo de Entrada', 'Data', 'Referências', 'Valor', 'Descrição']
 
-        # Define padrão de colunas
-        colunas = ['Periodo de Entrada', 'Data', 'Referências', 'Valor', 'Descrição']
+        case "CitiExtratoC/IAuto":
+            # Padrão regex
+            padrao = r"^([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*) *([\w\d.,:/ -]+)*\n(\d+)+\n+(\d{2}/\d{2}/\d{4})+\n+(\d{2}/\d{2}/\d{4})+\n+"
 
-    case "CitiExtratoC/IAuto":
-        # Padrão regex
-        padrao = r"^([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*) *([\w\d.,:/ -]+)*\n(\d+)+\n+(\d{2}/\d{2}/\d{4})+\n+(\d{2}/\d{2}/\d{4})+\n+"
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Data Entrada', 'Data Valor', 'Referência Banco', 'Descrição', 'Valor', 'Detalhes']
 
-        # Define padrão de colunas
-        colunas = ['Data Entrada', 'Data Valor', 'Referência Banco', 'Descrição', 'Valor', 'Detalhes']
+        case "Dock":
+            # Padrão regex
+            padrao = r"^(.+)\n(\d{2}/\d{2}/\d{4})+[\d:-]+(\w+)+([-+]+[.\d,]*,\d{2}\b)+\n+([\w\d./-]+)+"
 
-    case "Dock":
-        # Padrão regex
-        padrao = r"^(.+)\n(\d{2}/\d{2}/\d{4})+[\d:-]+(\w+)+([-+]+[.\d,]*,\d{2}\b)+\n+([\w\d./-]+)+"
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Data', 'Descrição', 'Status', 'Valor']
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Descrição', 'Status', 'Valor']
+        case "ItauExtratoC/C-A/A":
+            # Padrão regex
+            padraoCabecalho = r"(pela Bolsa de Valores )+(\d{2}/\d{2})+([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(D = débito a compensar )+(\d{2}/\d{2})+([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(G = aplicação programada )+(\d{2}/\d{2})*([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(P = poupança automática )(\d{2}/\d{2})*([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))"
+            padraoCorpo = r"^(?!.*SALDO APLIC AUT MAIS)(\d{2}/\d{2})*([\w\d.,/& -]*?) ([-.\d,]+,\d{2}\b-*) *([-.\d,]+,\d{2}\b-*)*"
 
-    case "ItauExtratoC/C-A/A":
-        # Padrão regex
-        padraoCabecalho = r"(pela Bolsa de Valores )+(\d{2}/\d{2})+([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(D = débito a compensar )+(\d{2}/\d{2})+([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(G = aplicação programada )+(\d{2}/\d{2})*([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))|(P = poupança automática )(\d{2}/\d{2})*([ \w\d./-]*(?=)) ([-.\d,\d{2}]*(?=))"
-        padraoCorpo = r"^(?!.*SALDO APLIC AUT MAIS)(\d{2}/\d{2})*([\w\d.,/& -]*?) ([-.\d,]+,\d{2}\b-*) *([-.\d,]+,\d{2}\b-*)*"
+            # Encontrar o índice do trecho "Para demais siglas, consulte as Notas"
+            indice_split = texto.find("Para demais siglas, consulte as Notas")
+            parte1 = texto[:indice_split]
+            parte2 = texto[indice_split:]
 
-        # Encontrar o índice do trecho "Para demais siglas, consulte as Notas"
-        indice_split = texto.find("Para demais siglas, consulte as Notas")
-        parte1 = texto[:indice_split]
-        parte2 = texto[indice_split:]
+            # Encontrar o índice do trecho "totalizador de aplicações automáticas entrada R$ saída R$"
+            indice_split2 = parte2.find("totalizador de aplicações automáticas entrada R$ saída R$")
+            parte2Usavel = parte2[:indice_split2]
 
-        # Encontrar o índice do trecho "totalizador de aplicações automáticas entrada R$ saída R$"
-        indice_split2 = parte2.find("totalizador de aplicações automáticas entrada R$ saída RS")
-        parte2Usavel = parte2[:indice_split2]
+            # Procurando por todas as correspondências no texto
+            matchesCabecalho = re.findall(padraoCabecalho, parte1)
+            matchesCorpo = re.findall(padraoCorpo, parte2Usavel, re.MULTILINE)
 
-        # Procurando por todas as correspondências no texto
-        matchesCabecalho = re.findall(padraoCabecalho, parte1)
-        matchesCorpo = re.findall(padraoCorpo, parte2Usavel, re.MULTILINE)
+            # Define padrão de colunas
+            colunas = ['Data', 'Descrição', 'Valor', 'Saldo']
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Descrição', 'Valor', 'Saldo']
+            regex_ano = r"(extrato mensal ag ).+(\d{4}) +"
+            pega_ano = re.search(regex_ano, texto).group(2)
 
-    case "ItauBBA":
-        # Padrão regex
-        padrao = r"^*(\d{2} */ *\w{3})+ +(.+)\s+(-*[.\d,]+,\d{2})+"
-        
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+        case "ItauBBA":
+            # Padrão regex
+            padrao = r"^*(\d{2} */ *\w{3})+ +(.+)\s+(-*[.\d,]+,\d{2})+"
+            
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Lançamento', 'Valor']
-        
-        # Pega ano
-        regex_ano = r"(lançamentos período: )+.+[/]+(\d+)"
-        pega_ano = re.search(regex_ano, texto).group(2)
-        print(pega_ano)
-        
-    case "OriginalExtratoConta":
-        # Padrão regex
-        padrao = r"([\w\d./ -]*)\n(\d{2}/\d{2}/\d{4}) (\w+) ([+-]* [R$]+ [-.\d,]+,\d{2}\b)\n([\w\d./ -]*)"
+            # Define padrão de colunas
+            colunas = ['Data', 'Lançamento', 'Valor']
+            
+            # Pega ano
+            regex_ano = r"(lançamentos período: )+.+[/]+(\d+)"
+            pega_ano = re.search(regex_ano, texto).group(2)
+            
+        case "OriginalExtratoConta":
+            # Padrão regex
+            padrao = r"([\w\d./ -]*)\n(\d{2}/\d{2}/\d{4}) (\w+) ([+-]* [R$]+ [-.\d,]+,\d{2}\b)\n([\w\d./ -]*)"
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Lançamento', 'Tipo', 'Valor', 'Descrição']
+            # Define padrão de colunas
+            colunas = ['Data', 'Lançamento', 'Tipo', 'Valor', 'Descrição']
 
-    case "PinbankExtratoContaP/L":
-        # Padrão regex
-        padrao = r"^(\d{2}/\d{2}/\d{4})+ +[\d:-]*([ \w\d./-]+)+ +[RSrsR$ ]*([.\d,]+)+ *(\w+)*\n"
+        case "PinbankExtratoContaP/L":
+            # Padrão regex
+            padrao = r"^(\d{2}/\d{2}/\d{4})+ +[\d:-]*([ \w\d./-]+)+ +[RSrsR$ ]*([.\d,]+)+ *(\w+)*\n"
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Descrição', 'Valor', 'Operador']
+            # Define padrão de colunas
+            colunas = ['Data', 'Descrição', 'Valor', 'Operador']
 
-    case "SantanderExtrato":
-        # Padrão regex
-        padrao = r"(\d{2}/\d{2}/\d{4})+\s+([\w\d., /-]*)\s+(\d{6}|[\w/]{6})+\s+([-.\d,]+,\d{2}\b)"
+        case "SantanderExtrato":
+            # Padrão regex
+            padrao = r"(\d{2}/\d{2}/\d{4})+\s+([\w\d., /-]*)\s+(\d{6}|[\w/]{6})+\s+([-.\d,]+,\d{2}\b)"
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Histórico', 'Nº Documento', 'Valor']
+            # Define padrão de colunas
+            colunas = ['Data', 'Histórico', 'Nº Documento', 'Valor']
 
-    case "TravelexExtratoC/C":
-        # Padrão regex
-        padrao = r"\d{2}/\d{2}/\d{4}\n(\d{2}/\d{2}/\d{4})\n\d{2}:\d{2}\n([\w\sç]*\n(?!.*LIQUIDACAO)\w*)\n([\w\s\d\n./:|-]*(?=))\b(?:Sim|Não)\b ([-.\d,\d{2}]*(?=)) ([-.\d,\d{2}]*(?=))"
+        case "TravelexExtratoC/C":
+            # Padrão regex
+            padrao = r"\d{2}/\d{2}/\d{4}\n(\d{2}/\d{2}/\d{4})\n\d{2}:\d{2}\n([\w\sç]*\n(?!.*LIQUIDACAO)\w*)\n([\w\s\d\n./:|-]*(?=))\b(?:Sim|Não)\b ([-.\d,\d{2}]*(?=)) ([-.\d,\d{2}]*(?=))"
 
-        # Procurando por todas as correspondências no texto
-        matches = re.findall(padrao, texto, re.MULTILINE)
+            # Procurando por todas as correspondências no texto
+            matches = re.findall(padrao, texto, re.MULTILINE)
 
-        # Define padrão de colunas
-        colunas = ['Data', 'Tipo', 'Detalhes', 'Valor', 'Saldo']
-                                  
-    case _:
-        raise ValueError("Tipo inválido!")
+            # Define padrão de colunas
+            colunas = ['Data', 'Tipo', 'Detalhes', 'Valor', 'Saldo']
+                                    
+        case _:
+            raise ValueError("Tipo inválido!")
+except Exception as e:
+    # Se ocorrer algum erro, imprima a exceção
+    raise ValueError(f"Nenhuma correspondência encontrada, verifique o tipo do arquivo!\nArquivo selecionado:{tipo}")
 
 
 if tipo == "BancoDoBrasilEmpresaExtratoC/C":
@@ -624,7 +611,7 @@ if tipo == "Dock":
         matches2 = re.findall(padrao2, texto, re.MULTILINE)
 
         # Define padrão de colunas
-        colunas1 = ['Data', 'Descrição', 'Valor RS', 'Valor USS']
+        colunas1 = ['Data', 'Descrição', 'Valor', 'Valor USS']
 
         # Se houver correspondências, escrever os dados em um arquivo CSV
         if matches1 and matches2:
@@ -644,19 +631,19 @@ if tipo == "Dock":
             # Iterar sobre as células da planilha para limpar os valores
             for index, row in df.iterrows():
                 # Remover pontos e vírgulas
-                cleaned_value = str(row['Valor RS']).replace('.', '').replace(',', '').replace('--','-')
+                cleaned_value = str(row['Valor']).replace('.', '').replace(',', '').replace('--','-')
                 
                 try:
                     # Tentar converter para float
                     float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
                     # Atualizar o valor na coluna 'Valor'
-                    df.at[index, 'Valor RS'] = float_value
+                    df.at[index, 'Valor'] = float_value
                 # Tratar casos onde a conversão falha
                 except ValueError:
                     print(cleaned_value)
                     print("valor não encontrado")
                     # Atribuir um valor padrão ou NaN para valores inválidos
-                    df.at[index, 'Valor RS'] = ''
+                    df.at[index, 'Valor'] = ''
 
                 # Iterar sobre as células da planilha para limpar os valores
                 for index, row in df.iterrows():
@@ -676,12 +663,11 @@ if tipo == "Dock":
                         df.at[index, 'Valor USS'] = ''
                 
             # Converter a coluna "Valor" para tipo numérico
-            df['Valor RS'] = pd.to_numeric(df['Valor RS'], errors='coerce')
+            df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
             # Converter a coluna "Valor" para tipo numérico
             df['Valor USS'] = pd.to_numeric(df['Valor USS'], errors='coerce')
 
             # Ordenar o DataFrame pela coluna 'Data'
-            df['Data'] = pd.to_datetime(df['Data'], format='%d/%m/%Y')  # Convertendo a coluna 'Data' para datetime
             df = df.sort_values(by='Data')  # Ordenando o DataFrame pela coluna 'Data'
 
             df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
@@ -724,6 +710,11 @@ if tipo == "ItauExtratoC/C-A/A":
         matches_ordenados = limpar_e_preencher_arrays(matches_ordenados)
 
         df = pd.DataFrame(matches_ordenados, columns=colunas)
+        for index, row in df.iterrows():
+            data = str(df.at[index, 'Data'])
+            ano = f"-{pega_ano}"
+            # Atualizar o valor na coluna 'Valor'
+            df.at[index, 'Data'] = f"{data}{ano}"
 
         def itera_valor(coluna):
             for index, row in df.iterrows():
@@ -1049,8 +1040,16 @@ match tipo:
         'Data': 'Data',
         'Descrição': 'Tipo',
         'Valor': 'Valor',
-        'Valor RS': 'Valor',
         'Status': 'Descricao'
+        }
+
+        padroniza_docs(mapeamento_colunas, csv_path)
+
+    case "Dock2": 
+        mapeamento_colunas = {
+        'Data': 'Data',
+        'Descrição': 'Tipo',
+        'Valor': 'Valor'
         }
 
         padroniza_docs(mapeamento_colunas, csv_path)

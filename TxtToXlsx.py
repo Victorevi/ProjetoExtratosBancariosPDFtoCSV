@@ -1,25 +1,11 @@
 import sys
 import re
 import openpyxl
-import csv
 
 #Imputs
 txt_path = sys.argv[1]
 xlsx_path = sys.argv[2]
 tipo = sys.argv[3]
-'''
-Tipo:
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Banco do Brasil janeiro 2022  cc 51734-8.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Banco do Brasil janeiro 2022  cc 51734-8.xlsx" "Banco do Brasil"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Bradesco dez.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Bradesco dez.xlsx" "Bradesco"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/BS2 887946-0.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/BS2 887946-0.xlsx" "BS2"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/c6.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/c6.xlsx" "C6"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa292-5 - julho-22 (1).txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/caixa292-5 - julho-22 (1).xlsx" "Caixa"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de OperaÃ§Ãµes (1)_ORC.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de OperaÃ§Ãµes (1)_ORC.xlsx" "City"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ItauAbril2023.xlsx" "Itau"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Original Fev.xlsx" "Original"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander1.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander_ORC.xlsx" "Santander"
-python TxtToXlsx.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex_ORC.txt" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/travelex_ORC.xlsx" "Travelex"
-'''
 
 # Ler o texto do arquivo 
 with open(txt_path, 'r', encoding='utf-8') as file:

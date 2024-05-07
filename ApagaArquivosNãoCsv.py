@@ -22,7 +22,3 @@ pasta_alvo = sys.argv[1]
 
 # Chamada da função para deletar os arquivos
 deletar_arquivos_txt_e_pdf(pasta_alvo)
-
-'''
-python ApagaArquivosNãoCsv.py "C:/Users/vbarbosa/Downloads/docs bancarios/Script" 
-'''

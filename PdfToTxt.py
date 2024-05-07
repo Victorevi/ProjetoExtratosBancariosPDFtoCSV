@@ -43,7 +43,7 @@ def converter_pdf_para_txt(tipo, arquivo_entrada, arquivo_saida_txt, layout, raw
 
             else:
                 print("Arquivo extraído com sucesso!")
-                
+
         else:
             if tipo == 1:
                 print("O arquivo extraído está vazio ou não contém texto.")
@@ -114,17 +114,3 @@ Tipos:
 '''
 
 switch_case(tipo)
-
-'''
-
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/20240131 - CITIBANK 086326376 Escrow - Brasília.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - CITIBANK 086326376 Escrow - Brasilia" "0"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/santander.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/santander1" "1"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/202402 - CITIBANK_90015799 Extrato de Operações (1).pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/202402 - CITIBANK_90015799 Extrato de Operacoes (1)1" "2"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK- Extrato de Operações.90016495.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK- Extrato de Operacoes 90016495" "2"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/20240131 - C6_42457718.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/20240131 - C6_42457718" "0"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/dock.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/Dock" "4"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/PINBANK 00190465-0.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/PINBANK 00190465-0" "0"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK_90015799.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK_90015799" "0"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/CITIBANK 9003447-9 - Aplicação Sweep.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/CITIBANK 9003447-9 - Aplicacao Sweep" "0"
-python PdfToTXT.py "C:/Users/vbarbosa/Downloads/docs bancarios/ITAÚ_5786-2.pdf" "C:/Users/vbarbosa/Downloads/docs bancarios/Script/ITAu_5786-2" "0"
-'''

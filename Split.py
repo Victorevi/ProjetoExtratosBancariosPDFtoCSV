@@ -28,7 +28,3 @@ if __name__ == "__main__":
     print(output_prefix)
 
     divide_pdf(input_pdf, output_folder, output_prefix)  # Segundo argumento é o caminho para a pasta de saída
-
-
-#python split_pdf.py "caminho/do/seu/arquivo.pdf" "caminho/para/sua/pasta/de/saida/" "output_segment"
-#python split.py "C:/Users/vbarbosa/Desktop/recibo/testeRPA/caixa 254-2 01 a 15-07.pdf" "C:/Users/vbarbosa/Desktop/recibo/testeRPA/caixa/" "caixa 254-2 01 a 15-07.pdf"
