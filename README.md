@@ -13,7 +13,7 @@ Este é um conjunto de scripts em Python para converter documentos PDF em arquiv
 
 ## Scripts em funcionamento parados no desenvolvimento
 
-- TxtToXlsx.py
+- TxtToXlsx.py (necessário a instalação da biblioteca: openpyxl)
 - Split.py
 
 
