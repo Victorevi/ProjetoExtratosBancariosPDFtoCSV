@@ -1,5 +1,6 @@
 import sys
 import re
+import datetime
 import pandas as pd
 
 #Imputs
@@ -42,14 +43,14 @@ try:
     match tipo:
         case "BancoDoBrasilEmpresaExtratoC/C":
             # Padrão regex
-            padrao = r"(\d{2}/\d{2}/\d{4}) (\d{4}) (\d{5}) ([\w\d/. -]+) ([\d.]+) ([ R$\d,.-]+,\d{2}\b)\s*(\w)\s*"
+            padrao = r"([\d/+]+\d{4})+ (\d{4}) (\d{5}) (.+) +([ \d,.-]+,\d{2})\s*(\w)\s*"
             
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
 
             # Define padrão de colunas
             #colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor R$', 'Operador', 'Descrição']
-            colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Documento', 'Valor RS', 'Operador']
+            colunas = ['Data', 'Agência Origem', 'lote', 'Histórico', 'Valor RS', 'Operador']
 
         case "BradescoNetEmpresaExtratoMensalPPeriodo":
             # Padrão regex
@@ -64,22 +65,26 @@ try:
         case "BS2ExtratoEmpresas":
             # Padrão regex
             padrao = r"(\d{2}/\d{2}/\d{4}) ([\w\d./ ]+-*[\w\d./ ]+) ([R$ \d,.-]+,\d{2}\b)"
+            padraoSaldoInicial = r"(Extraído em )(.+)|(Saldo Inicial) ([ R$S\d,.-]+,\d{2})+"
+            padraoSaldoFinal = r"(Saldo Final ).+ ([\d,.-]+,\d{2})+"
 
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
+            matchSaldoInicial = re.findall(padraoSaldoInicial, texto, re.MULTILINE)
+            matchSaldoFinal = re.findall(padraoSaldoFinal, texto, re.MULTILINE)
 
             # Define padrão de colunas
-            colunas = ['Data', 'Descrição', 'Valor']
+            colunas = ['Data', 'Descrição', 'Valor', 'Saldo']
             
         case "C6ExtratoC/C":
             # Padrão regex
-            padrao = r"(\d{2}/\d{2}/\d{4}) ([\w\d./ -]*) (\d{12})+ ([-.\d,]+,\d{2}\b) ([CD])"
+            padrao = r"(\d{2}/\d{2}/\d{4}) (.+) ([-.\d,]+,\d{2}\b) *([CD])*"
 
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
 
             # Define padrão de colunas
-            colunas = ['Data', 'Descrição', 'Documento', 'Valor', 'Operador']
+            colunas = ['Data', 'Descrição', 'Valor', 'Operador']
             
         case "CaixaExtratoPPeriodo":
             # Padrão regex
@@ -121,29 +126,36 @@ try:
         case "CitiExtratoConta":
             # Padrão regex
             padrao = r"^(\d{2}/\d{2}/\d{4})+ +(\d{2}/\d{2}/\d{4})+ +([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*)\n([\w\d./ -]+)+\n"
-
+            padrao_saldo_inicial = r"Período do Extrato (.+)\nSaldo Anterior Valor Total dos Créditos Valor Total dos\nDébitos\nSaldo Contábil de\nFechamento\nSaldo de\nInvestimento\nAutomático\n.+\n.+\n([\d,.-]+,\d{2})+ ([\d,.-]+,\d{2})+ "
+            padrao_saldo_final = r"Período do Extrato (.+)\nSaldo Anterior Valor Total dos Créditos Valor Total dos\nDébitos\nSaldo Contábil de\nFechamento\nSaldo de\nInvestimento\nAutomático\n.+\n.+\n([\d,.-]+,\d{2})+ ([\d,.-]+,\d{2})+ "
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
+            matches_saldo_inicial = re.findall(padrao_saldo_inicial, texto, re.MULTILINE)
+            matches_saldo_final = re.findall(padrao_saldo_final, texto, re.MULTILINE)
 
             # Define padrão de colunas
-            colunas = ['Periodo de Entrada', 'Data', 'Referências', 'Valor', 'Descrição']
+            colunas = ['Data', 'Referências', 'Valor', 'Saldo', 'Descrição']
 
         case "CitiExtratoC/IAuto":
             # Padrão regex
             padrao = r"^([\w\d./ -]*) ([-.\d,]+,\d{2}\b-*) *([\w\d.,:/ -]+)*\n(\d+)+\n+(\d{2}/\d{2}/\d{4})+\n+(\d{2}/\d{2}/\d{4})+\n+"
+            padrao_saldos = r"Período do Extrato (.+)\nValor Total dos Créditos Valor Total dos Débitos\nSaldo Inicial Saldo Disponível Final\n.+\n([\d,.-]+,\d{2})+ ([\d,.-]+,\d{2})+\s"
 
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
+            matches_saldos = re.findall(padrao_saldos, texto, re.MULTILINE)
 
             # Define padrão de colunas
-            colunas = ['Data Entrada', 'Data Valor', 'Referência Banco', 'Descrição', 'Valor', 'Detalhes']
+            colunas = ['Data Valor', 'Referência Banco', 'Descrição', 'Valor', 'Saldo', 'Detalhes']
 
         case "Dock":
             # Padrão regex
             padrao = r"^(.+)\n(\d{2}/\d{2}/\d{4})+[\d:-]+(\w+)+([-+]+[.\d,]*,\d{2}\b)+\n+([\w\d./-]+)+"
+            padrao_saldo_final = r".+Dock.+à(.+)\n\n.+\n\n.+\n\n.+\n\n.+\n\n.+R[S$]+(.+)"
 
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
+            matches_saldo_final = re.findall(padrao_saldo_final, texto, re.MULTILINE)
 
             # Define padrão de colunas
             colunas = ['Data', 'Descrição', 'Status', 'Valor']
@@ -189,9 +201,11 @@ try:
         case "OriginalExtratoConta":
             # Padrão regex
             padrao = r"([\w\d./ -]*)\n(\d{2}/\d{2}/\d{4}) (\w+) ([+-]* [R$]+ [-.\d,]+,\d{2}\b)\n([\w\d./ -]*)"
+            padrao_saldo_final =r"Saldo em conta\n(.+)R[S$]+(.+)\n(.+)"
 
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
+            matches_saldo_final = re.findall(padrao_saldo_final, texto, re.MULTILINE)
 
             # Define padrão de colunas
             colunas = ['Data', 'Lançamento', 'Tipo', 'Valor', 'Descrição']
@@ -208,20 +222,24 @@ try:
 
         case "SantanderExtrato":
             # Padrão regex
-            padrao = r"(\d{2}/\d{2}/\d{4})+\s+([\w\d., /-]*)\s+(\d{6}|[\w/]{6})+\s+([-.\d,]+,\d{2}\b)"
+            padrao = r"(?!.+SALDO ANTERIOR)(\d{2}/\d{2}/\d{4})+\s+(.+) (\d+) +([-.\d,]+,\d{2}\b) *([-.\d,]+,\d{2}\b)*\s"
+            padrao_saldo_inicial = r"(.+) (SALDO ANTERIOR.*) +([-.\d,]+,\d{2})+\s"
 
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
+            match_saldo_inicial = re.findall(padrao_saldo_inicial, texto, re.MULTILINE)
 
             # Define padrão de colunas
-            colunas = ['Data', 'Histórico', 'Nº Documento', 'Valor']
+            colunas = ['Data', 'Histórico', 'Nº Documento', 'Valor', 'Saldo']
 
         case "TravelexExtratoC/C":
             # Padrão regex
             padrao = r"\d{2}/\d{2}/\d{4}\n(\d{2}/\d{2}/\d{4})\n\d{2}:\d{2}\n([\w\sç]*\n(?!.*LIQUIDACAO)\w*)\n([\w\s\d\n./:|-]*(?=))\b(?:Sim|Não)\b ([-.\d,\d{2}]*(?=)) ([-.\d,\d{2}]*(?=))"
+            padrao_saldo_inicial = r"(.+) (Saldo Inicial) (.+)"
 
             # Procurando por todas as correspondências no texto
             matches = re.findall(padrao, texto, re.MULTILINE)
+            match_saldo_inicial = re.findall(padrao_saldo_inicial, texto, re.MULTILINE)
 
             # Define padrão de colunas
             colunas = ['Data', 'Tipo', 'Detalhes', 'Valor', 'Saldo']
@@ -302,7 +320,34 @@ if tipo == "BradescoNetEmpresaExtratoMensalPPeriodo":
 if tipo == "BS2ExtratoEmpresas":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
-        df = pd.DataFrame(matches, columns=colunas)
+        matches_ordenados = []
+
+        for match in matchSaldoInicial:
+            matches_saldo_inicial_ordenado = [match[1], match[2], '', match[3]]
+            matches_ordenados.append(matches_saldo_inicial_ordenado)
+
+        for match in matches:
+            matches_ordenado = [match[0], match[1], match[2], '']
+            matches_ordenados.append(matches_ordenado)
+
+        for match in matchSaldoFinal:
+            matches_saldo_final_ordenado = ['', match[0], '', match[1]]
+            matches_ordenados.append(matches_saldo_final_ordenado)
+
+        def limpar_e_preencher_arrays(array):
+            # Remover arrays que contenham apenas strings vazias
+            array = [subarray for subarray in array if not all(item == '' for item in subarray)]
+
+            # Preencher o primeiro elemento de cada array com o elemento anterior
+            for i in range(1, len(array)):
+                if array[i][0] == '':
+                    array[i][0] = array[i-1][0]
+
+            return array
+        
+        matches_ordenados = limpar_e_preencher_arrays(matches_ordenados)
+
+        df = pd.DataFrame(matches_ordenados, columns=colunas)
 
         for index, row in df.iterrows():
             # Remover pontos e vírgulas
@@ -321,8 +366,25 @@ if tipo == "BS2ExtratoEmpresas":
                 # Atribuir um valor padrão ou NaN para valores inválidos
                 df.at[index, 'Valor'] = ''
 
-        # Converter a coluna "Valor" para tipo numérico
+            # Remover pontos e vírgulas
+            cleaned_value_saldo = str(row['Saldo']).replace('R$', '').replace('.', '').replace(',', '')
+            # Verificar se o último caractere é "-" e converter para negativo se necessário
+            if cleaned_value_saldo.startswith('-') or cleaned_value_saldo.startswith('--') :
+                cleaned_value_saldo = '-' + cleaned_value_saldo[3:]
+            
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value_saldo[:-2] + '.' + cleaned_value_saldo[-2:]), 2)
+                # Atualizar o Saldo na coluna 'Saldo'
+                df.at[index, 'Saldo'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Saldo'] = ''
+
+        # Converter a coluna "Valor" e "Saldo" para tipo numérico
         df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+        df['Saldo'] = pd.to_numeric(df['Saldo'], errors='coerce')
 
         df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
         print(f"Arquivo CSV criado com sucesso em: {csv_path}")
@@ -447,25 +509,20 @@ if tipo == "CitiExtratoOperacoes":
 if tipo == "CitiExtratoC/C":
      # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
-        def tirar_linhas_saldo_do_meio_do_documento(array):
-            # Criar uma nova array para armazenar as arrays que serão removidas
-            arrays_removidas = []
+        def limpar_e_preencher_arrays(array):
+            # Remover arrays que contenham apenas strings vazias
+            array = [subarray for subarray in array if not all(item == '' for item in subarray)]
 
-            # Iterar sobre a array para encontrar e remover as arrays com "SALDO FINAL" e "SALDO DISPONÍVEL"
-            for subarray in array[:]:  # Usando [:] para fazer uma cópia da lista e permitir alterações durante a iteração
-                if subarray[3] in ["SALDO FINAL", "SALDO DISPONÍVEL"]:
-                    arrays_removidas.append(subarray)
-                    array.remove(subarray)
-
-            # Pegar a última array da nova array e movê-la de volta para a array original
-            if arrays_removidas:
-                array.append(arrays_removidas[-1])
+            # Preencher o primeiro elemento de cada array com o elemento anterior
+            for i in range(1, len(array)):
+                if array[i][0] == '':
+                    array[i][0] = array[i-1][0]
 
             return array
 
-        macthes = tirar_linhas_saldo_do_meio_do_documento(matches)
+        macthes_formatados = limpar_e_preencher_arrays(matches)
 
-        df = pd.DataFrame(matches, columns=colunas)
+        df = pd.DataFrame(macthes_formatados, columns=colunas)
 
         # Iterar sobre as células da planilha para limpar os valores
         for index, row in df.iterrows():
@@ -495,44 +552,25 @@ if tipo == "CitiExtratoC/C":
 if tipo == "CitiExtratoConta":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
-        df = pd.DataFrame(matches, columns=colunas)
-
-        # Iterar sobre as células da planilha para limpar os valores
-        for index, row in df.iterrows():
-            # Remover pontos e vírgulas
-            cleaned_value = str(row['Valor']).replace('.', '').replace(',', '').replace('--','-')
-            # Verificar se o último caractere é "-" e converter para negativo se necessário
-            if cleaned_value.endswith('-'):
-                cleaned_value = '-' + cleaned_value[:-1]
-            
-            try:
-                # Tentar converter para float
-                float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
-                # Atualizar o valor na coluna 'Valor'
-                df.at[index, 'Valor'] = float_value
-            # Tratar casos onde a conversão falha
-            except ValueError:
-                print(cleaned_value)
-                print("valor não encontrado")
-                # Atribuir um valor padrão ou NaN para valores inválidos
-                df.at[index, 'Valor'] = ''
-        
-        # Converter a coluna "Valor" para tipo numérico
-        df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
-
-        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
-        print(f"Arquivo CSV criado com sucesso em: {csv_path}")
-    else:
-        print("Nenhuma correspondência encontrada.")
-
-if tipo == "CitiExtratoC/IAuto":
-    # Se houver correspondências, escrever os dados em um arquivo CSV
-    if matches:
-        # Reorganizar a ordem das colunas das correspondências
         matches_ordenados = []
+
+        for match in matches_saldo_inicial:
+            matches_saldo_inicial_ordenado = [match[0], '', '', match[1], 'Saldo Inicial']
+            matches_ordenados.append(matches_saldo_inicial_ordenado)
         for match in matches:
-                matches_corpo_ordenados = [match[4], match[5], match[3], match[0], match[1], match[2]]
-                matches_ordenados.append(matches_corpo_ordenados)
+            matches_ordenado = [match[1], match[2], match[3], '', match[4]]
+            matches_ordenados.append(matches_ordenado)
+        for match in matches_saldo_final:
+            matches_saldo_final_ordenado = [match[0], '', '', match[2], 'Saldo Final']
+            matches_ordenados.append(matches_saldo_final_ordenado)
+
+        def limpar_arrays(array):
+            # Remover arrays que contenham apenas strings vazias
+            array = [subarray for subarray in array if not all(item == '' for item in subarray)]
+
+            return array
+        
+        matches_ordenados = limpar_arrays(matches_ordenados)
 
         df = pd.DataFrame(matches_ordenados, columns=colunas)
 
@@ -551,13 +589,101 @@ if tipo == "CitiExtratoC/IAuto":
                 df.at[index, 'Valor'] = float_value
             # Tratar casos onde a conversão falha
             except ValueError:
-                print(cleaned_value)
-                print("valor não encontrado")
+                df.at[index, 'Valor'] = ''
+
+            # Remover pontos e vírgulas
+            cleaned_value_saldo = str(row['Saldo']).replace('R$', '').replace('.', '').replace(',', '')
+            # Verificar se o último caractere é "-" e converter para negativo se necessário
+            if cleaned_value_saldo.startswith('-') or cleaned_value_saldo.startswith('--') :
+                cleaned_value_saldo = '-' + cleaned_value_saldo[3:]
+            
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value_saldo[:-2] + '.' + cleaned_value_saldo[-2:]), 2)
+                # Atualizar o Saldo na coluna 'Saldo'
+                df.at[index, 'Saldo'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Saldo'] = ''
+
+        converter_data = lambda data: datetime.datetime.strptime(data, '%m/%d/%Y').strftime('%d/%m/%Y')
+        # Suponha que 'data_column' seja sua coluna de data
+        df['Data'] = df['Data'].apply(converter_data)
+
+
+        # Converter a coluna "Valor" e "Saldo" para tipo numérico
+        df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+        df['Saldo'] = pd.to_numeric(df['Saldo'], errors='coerce')
+
+        df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
+        print(f"Arquivo CSV criado com sucesso em: {csv_path}")
+    else:
+        print("Nenhuma correspondência encontrada.")
+
+if tipo == "CitiExtratoC/IAuto":
+    # Se houver correspondências, escrever os dados em um arquivo CSV
+    if matches:
+        matches_ordenados = []
+
+        for match in matches_saldos:
+            matches_saldo_inicial_ordenado = [match[0], '', 'Saldo Inicial', '', match[1], '']
+            matches_ordenados.append(matches_saldo_inicial_ordenado)
+        for match in matches:
+            matches_corpo_ordenados = [match[5], match[3], match[0], match[1], '', match[2]]
+            matches_ordenados.append(matches_corpo_ordenados)
+        for match in matches_saldos:
+            matches_saldo_final_ordenado = [match[0], '', 'Saldo Final', '', match[2], '']
+            matches_ordenados.append(matches_saldo_final_ordenado)
+
+        def limpar_arrays(array):
+            # Remover arrays que contenham apenas strings vazias
+            array = [subarray for subarray in array if not all(item == '' for item in subarray)]
+
+            return array
+        
+        matches_ordenados = limpar_arrays(matches_ordenados)
+
+        df = pd.DataFrame(matches_ordenados, columns=colunas)
+
+        # Iterar sobre as células da planilha para limpar os valores
+        for index, row in df.iterrows():
+            # Remover pontos e vírgulas
+            cleaned_value = str(row['Valor']).replace('.', '').replace(',', '').replace('--','-')
+            # Verificar se o último caractere é "-" e converter para negativo se necessário
+            if cleaned_value.endswith('-'):
+                cleaned_value = '-' + cleaned_value[:-1]
+            
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value[:-2] + '.' + cleaned_value[-2:]), 2)
+                # Atualizar o valor na coluna 'Valor'
+                df.at[index, 'Valor'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
                 # Atribuir um valor padrão ou NaN para valores inválidos
                 df.at[index, 'Valor'] = ''
+
+
+            # Remover pontos e vírgulas
+            cleaned_value_saldo = str(row['Saldo']).replace('.', '').replace(',', '').replace('--','-')
+            # Verificar se o último caractere é "-" e converter para negativo se necessário
+            if cleaned_value_saldo.endswith('-'):
+                cleaned_value_saldo = '-' + cleaned_value_saldo[:-1]
+            
+            try:
+                # Tentar converter para float
+                float_value = round(float(cleaned_value_saldo[:-2] + '.' + cleaned_value_saldo[-2:]), 2)
+                # Atualizar o valor na coluna 'Valor'
+                df.at[index, 'Saldo'] = float_value
+            # Tratar casos onde a conversão falha
+            except ValueError:
+                # Atribuir um valor padrão ou NaN para valores inválidos
+                df.at[index, 'Saldo'] = ''
         
-        # Converter a coluna "Valor" para tipo numérico
+        # Converter a coluna "Valor" e 'Saldo' para tipo numérico
         df['Valor'] = pd.to_numeric(df['Valor'], errors='coerce')
+        df['Saldo'] = pd.to_numeric(df['Saldo'], errors='coerce')
 
         df.to_csv(csv_path, index=False, encoding='utf-8-sig', sep=';', decimal=',')
         print(f"Arquivo CSV criado com sucesso em: {csv_path}")
@@ -570,10 +696,14 @@ if tipo == "Dock":
         # Reorganizar a ordem das colunas das correspondências
         matches_ordenados = []
         for match in matches:
-                descricao = match[0]+match[4]
-                status = match[2][:-2]
-                matches_corpo_ordenados = [match[1], descricao, status, match[3]]
-                matches_ordenados.append(matches_corpo_ordenados)
+            descricao = match[0]+match[4]
+            status = match[2][:-2]
+            matches_corpo_ordenados = [match[1], descricao, status, match[3]]
+            matches_ordenados.append(matches_corpo_ordenados)
+
+        for match in matches_saldo_final:
+            match_saldo_final = [match[0], 'Saldo final', '', match[1]]
+            matches_ordenados.append(match_saldo_final)
 
         df = pd.DataFrame(matches_ordenados, columns=colunas)
 
@@ -605,10 +735,12 @@ if tipo == "Dock":
         # Padrão regex
         padrao1 = r"^\n([\d/]+)+[\d:;-]+(.+)[Rr]+[sS$]+([-+.\d,]+)+]*[|]*[Uu]+[Ss$]+[Ss$]+([-+.\d,]+)"
         padrao2 = r"^(.+)\n([\d/]+)+[\d;:-]+(\w+)+[Rr]+[sS$]+([-+.\d,]+)+]*[|]*[Uu]+[Ss$]+[Ss$]+([-+.\d,]+)\n(\w+)"
+        padrao_saldo_final = r".+Dock.+à(.+)\n\n.+\n\n.+\n\n.+\n\n.+\n.+R[S$]+(.+)\n"
 
         # Procurando por todas as correspondências no texto
         matches1 = re.findall(padrao1, texto, re.MULTILINE)
         matches2 = re.findall(padrao2, texto, re.MULTILINE)
+        match_saldo_final = re.findall(padrao_saldo_final, texto, re.MULTILINE)
 
         # Define padrão de colunas
         colunas1 = ['Data', 'Descrição', 'Valor', 'Valor USS']
@@ -625,6 +757,10 @@ if tipo == "Dock":
                 descricao = match[0]+match[5]+match[2]
                 matches_corpo_ordenados = [match[1], descricao, match[3], match[4]]
                 matches_ordenados.append(matches_corpo_ordenados)
+
+            for match in matches_saldo_final:
+                match_saldo_final = [match[0], 'Saldo final', '', match[1]]
+                matches_ordenados.append(match_saldo_final)
 
             df = pd.DataFrame(matches_ordenados, columns=colunas1)
 
@@ -808,6 +944,9 @@ if tipo == "OriginalExtratoConta":
         for match in matches:
             match_ordenado = [match[1], match[0], match[2], match[3], match[4]]
             matches_ordenados.append(match_ordenado)
+        for match in matches_saldo_final:
+            matches_saldo_final = [match[0], match[2], '', match[1], '']
+            matches_ordenados.append(matches_saldo_final)
 
         df = pd.DataFrame(matches_ordenados, columns=colunas)
 
@@ -872,7 +1011,16 @@ if tipo == "PinbankExtratoContaP/L":
 if tipo == "SantanderExtrato":
     # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
-        df = pd.DataFrame(matches, columns=colunas)
+        matches_ordenados = []
+
+        for match in match_saldo_inicial:
+            matches_saldo_inicial_ordenado = [match[0], match[1], '', '', match[2]]
+            matches_ordenados.append(matches_saldo_inicial_ordenado)
+        for match in matches:
+            matches_ordenado = [match[0], match[1], match[2], match[3], match[4]]
+            matches_ordenados.append(matches_ordenado)
+
+        df = pd.DataFrame(matches_ordenados, columns=colunas)
 
         # Iterar sobre as células da planilha para limpar os valores
         for index, row in df.iterrows():
@@ -900,7 +1048,16 @@ if tipo == "SantanderExtrato":
 if tipo == "TravelexExtratoC/C":
      # Se houver correspondências, escrever os dados em um arquivo CSV
     if matches:
-        df = pd.DataFrame(matches, columns=colunas)
+        matches_ordenados = []
+
+        for match in match_saldo_inicial:
+            matches_saldo_inicial_ordenado = [match[0], match[1], '', '', match[2]]
+            matches_ordenados.append(matches_saldo_inicial_ordenado)
+        for match in matches:
+            matches_ordenado = [match[0], match[1], match[2], match[3], match[4]]
+            matches_ordenados.append(matches_ordenado)
+
+        df = pd.DataFrame(matches_ordenados, columns=colunas)
         
         def itera_valor(coluna):
             for index, row in df.iterrows():
@@ -928,27 +1085,41 @@ if tipo == "TravelexExtratoC/C":
     else:
         print("Nenhuma correspondência encontrada.")
 
-def padroniza_docs(mapeamento_colunas, csv_path):
-
+def padroniza_docs(mapeamento_colunas, csv_path, saldo_errado= False):
     # Definir a ordem padrão das colunas
-    padrao_colunas = ['Data', 'Tipo', 'Valor', 'Descricao']
+    padrao_colunas = ['Data', 'Tipo', 'Valor', 'Saldo', 'Descricao']
 
     # Criar um DataFrame vazio com as colunas na ordem desejada
     dados_reordenados = pd.DataFrame(columns=padrao_colunas)
 
     # Preencher as colunas reordenadas com os dados originais na ordem padrão
-    for coluna_padrao in padrao_colunas:
-        if coluna_padrao in mapeamento_colunas.values():
-            coluna_original = next((col for col, mapped_col in mapeamento_colunas.items() if mapped_col == coluna_padrao), None)
-            if coluna_original:
-                if coluna_padrao == 'Data':
-                    dados_reordenados[coluna_padrao] = df[coluna_original].str.replace('/', '-').str.replace('\\', '-')
-                else:
-                    dados_reordenados[coluna_padrao] = df[coluna_original]
-            else:
-                dados_reordenados[coluna_padrao] = None
-        else:
-            dados_reordenados[coluna_padrao] = None
+    for coluna_original, coluna_padrao  in mapeamento_colunas.items():
+        dados_reordenados[coluna_padrao] = df[coluna_original]
+
+    try:
+        # Formata a coluna 'Data'        
+        dados_reordenados['Data'] = dados_reordenados['Data'].apply(lambda x: x.split()[0].replace('/', '-').replace('\\', '-'))
+    except:
+        # Formata a coluna 'Data'        
+        dados_reordenados['Data'] = dados_reordenados['Data'].apply(lambda x: x.replace('/', '-').replace('\\', '-'))
+
+    if saldo_errado == True:
+        # Identificar e mover os valores da coluna 'Valor' para a coluna 'Saldo' onde o Tipo contenha 'Saldo' ou 'S A L D O' (ignorando maiúsculas)
+        dados_reordenados['Saldo'] = dados_reordenados.apply(lambda row: row['Valor'] if 'SALDO' in row['Tipo'].upper() or 'S A L D O' in row['Tipo'] else None, axis=1)
+        dados_reordenados['Valor'] = dados_reordenados.apply(lambda row: None if 'SALDO' in row['Tipo'].upper() or 'S A L D O' in row['Tipo'] else row['Valor'], axis=1)
+
+    # Lambda para verificar e preencher valores de data vazios com base nas linhas acima ou abaixo
+    verifica_data_vazia_baixo = lambda data, df, indice: df.at[indice+1, 'Data'] if pd.isnull(data) or data == '' and indice < len(df) - 1 else data
+    verifica_data_vazia_cima = lambda data, df, indice: df.at[indice-1, 'Data'] if pd.isnull(data) or data == '' and indice > 0 else data
+
+    # Aplicar o lambda à coluna de Data
+    dados_reordenados['Data'] = dados_reordenados.apply(lambda row: verifica_data_vazia_baixo(row['Data'], dados_reordenados, row.name), axis=1)
+    dados_reordenados['Data'] = dados_reordenados.apply(lambda row: verifica_data_vazia_cima(row['Data'], dados_reordenados, row.name), axis=1)
+
+    # Lidar com o último registro do DataFrame
+    ultimo_indice = len(dados_reordenados) - 1
+    if pd.isnull(dados_reordenados.at[ultimo_indice, 'Data']) or dados_reordenados.at[ultimo_indice, 'Data'] == '':
+        dados_reordenados.at[ultimo_indice, 'Data'] = dados_reordenados.at[ultimo_indice - 1, 'Data']
 
     # Salvar o novo DataFrame em um novo arquivo CSV
     dados_reordenados.to_csv(csv_path, index=False, sep=';', encoding='utf-8-sig')
@@ -961,16 +1132,19 @@ match tipo:
         'Data': 'Data',
         'Histórico': 'Tipo',
         'Valor RS': 'Valor',
-        'Documento': 'Descricao' 
+        'lote': 'Descricao' 
         }
 
-        padroniza_docs(mapeamento_colunas, csv_path)
+        saldo_errado = True
+
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
 
     case "BradescoNetEmpresaExtratoMensalPPeriodo":
         mapeamento_colunas = {
         'Data': 'Data',
         'Lançamento': 'Tipo',
         'Valor': 'Valor',
+        'Saldo': 'Saldo',
         'Documento': 'Descricao' 
         }
 
@@ -980,7 +1154,8 @@ match tipo:
         mapeamento_colunas = {
         'Data': 'Data',
         'Descrição': 'Tipo',
-        'Valor': 'Valor'
+        'Valor': 'Valor',
+        'Saldo': 'Saldo'
         }
 
         padroniza_docs(mapeamento_colunas, csv_path)
@@ -990,16 +1165,19 @@ match tipo:
         'Data': 'Data',
         'Descrição': 'Tipo',
         'Valor': 'Valor',
-        'Documento': 'Descricao'
+        'Operador': 'Descricao'
         }
 
-        padroniza_docs(mapeamento_colunas, csv_path)
+        saldo_errado = True
+
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
 
     case "CaixaExtratoPPeriodo":
         mapeamento_colunas = {
         'Data': 'Data',
         'Histórico': 'Tipo',
         'Valor': 'Valor',
+        'Saldo': 'Saldo',
         'Nº Documento': 'Descricao' 
         }
 
@@ -1010,6 +1188,7 @@ match tipo:
         'Data': 'Data',
         'Descrição': 'Tipo',
         'Valor': 'Valor',
+        'Saldo': 'Saldo',
         'Referências': 'Descricao'
         }
 
@@ -1022,14 +1201,17 @@ match tipo:
         'Valor': 'Valor',
         'Código': 'Descricao'
         }
+        
+        saldo_errado = True
 
-        padroniza_docs(mapeamento_colunas, csv_path)
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
 
     case "CitiExtratoC/IAuto":
         mapeamento_colunas = {
         'Data Valor': 'Data',
         'Descrição': 'Tipo',
         'Valor': 'Valor',
+        'Saldo': 'Saldo',
         'Detalhes': 'Descricao'
         }
 
@@ -1043,7 +1225,9 @@ match tipo:
         'Status': 'Descricao'
         }
 
-        padroniza_docs(mapeamento_colunas, csv_path)
+        saldo_errado = True
+
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
 
     case "Dock2": 
         mapeamento_colunas = {
@@ -1052,7 +1236,9 @@ match tipo:
         'Valor': 'Valor'
         }
 
-        padroniza_docs(mapeamento_colunas, csv_path)
+        saldo_errado = True
+
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
 
     case "ItauBBA":
         mapeamento_colunas = {
@@ -1061,17 +1247,22 @@ match tipo:
         'Valor': 'Valor'
         }
 
-        padroniza_docs(mapeamento_colunas, csv_path)
+        saldo_errado = True
+
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
       
     case "ItauExtratoC/C-A/A":
         mapeamento_colunas = {
         'Data': 'Data',
         'Descrição': 'Tipo',
-        'Valor': 'Valor'
+        'Valor': 'Valor',
+        'Saldo': 'Saldo'
         }
 
-        padroniza_docs(mapeamento_colunas, csv_path)
-  
+        saldo_errado = True
+
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
+
     case "OriginalExtratoConta":
         mapeamento_colunas = {
         'Data': 'Data',
@@ -1079,8 +1270,10 @@ match tipo:
         'Valor': 'Valor',
         'Descrição': 'Descricao'
         }
-        
-        padroniza_docs(mapeamento_colunas, csv_path)
+
+        saldo_errado = True
+
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
 
     case "PinbankExtratoContaP/L":
         mapeamento_colunas = {
@@ -1089,13 +1282,16 @@ match tipo:
         'Valor': 'Valor'
         }
 
-        padroniza_docs(mapeamento_colunas, csv_path)
+        saldo_errado = True
+
+        padroniza_docs(mapeamento_colunas, csv_path, saldo_errado)
 
     case "SantanderExtrato":
         mapeamento_colunas = {
         'Data': 'Data',
         'Histórico': 'Tipo',
         'Valor': 'Valor',
+        'Saldo': 'Saldo',
         'Nº Documento': 'Descricao'
         }
 
@@ -1106,6 +1302,7 @@ match tipo:
         'Data': 'Data',
         'Tipo': 'Tipo',
         'Valor': 'Valor',
+        'Saldo': 'Saldo',
         'Detalhes': 'Descricao'
         }
 
