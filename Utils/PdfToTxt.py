@@ -1,5 +1,4 @@
 import subprocess
-import sys
 import re
 
 # Leitura OCR de PDFs
@@ -14,7 +13,7 @@ def adicionar_ocr_ao_pdf(arquivo_entrada, arquivo_saida, force_ocr, idioma='por'
     subprocess.run(comando)
 
 # Converte para TXT
-def converter_pdf_para_txt(tipo, arquivo_entrada, arquivo_saida_txt, layout, raw, padrao='UTF-8'):
+def converter_pdf_para_txt(tipo, arquivo_entrada, prefixo_saida, arquivo_saida_txt, layout, raw, padrao='UTF-8'):
     comando = ['pdftotext', '-enc', padrao]
 
     if layout is True:
@@ -30,16 +29,16 @@ def converter_pdf_para_txt(tipo, arquivo_entrada, arquivo_saida_txt, layout, raw
         if arquivo_txt.read().strip():
             if tipo == 6:
                 # Padrão regex
-                padrao = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))"
+                padrao_re = r"(\d{16})[]|/ ]*([\w\s./\-]*)[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*(\d{2}/\d{2}/\d{4})[]|/ ]*([\w\s./\-]*)[]|/ ]* ([-.\d,]+,\d{3}\b-*|[-.\d,]+,\d{2}\b-*)[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))[]|/ ]*([-.\d,\d{2}]*(?=))"
 
                 # Procurando por todas as correspondências no texto
-                matches = re.findall(padrao, arquivo_txt.read(), re.MULTILINE)
+                matches = re.findall(padrao_re, arquivo_txt.read(), re.MULTILINE)
                 if matches:
                     print("Arquivo extraído com sucesso!")
                 else:
                     print("O arquivo extraído está vazio ou não contém texto.")
                     tipo = 2
-                    switch_case(tipo)
+                    PdfToTxt(arquivo_entrada, prefixo_saida, tipo)
 
             else:
                 print("Arquivo extraído com sucesso!")
@@ -48,59 +47,56 @@ def converter_pdf_para_txt(tipo, arquivo_entrada, arquivo_saida_txt, layout, raw
             if tipo == 1:
                 print("O arquivo extraído está vazio ou não contém texto.")
                 tipo = 3
-                switch_case(tipo)
-            else:
+                PdfToTxt(arquivo_entrada, prefixo_saida, tipo)
+            if tipo == 0:
                 print("O arquivo extraído está vazio ou não contém texto.")
                 tipo = 2
-                switch_case(tipo)
+                PdfToTxt(arquivo_entrada, prefixo_saida, tipo)
 
 # Seleciona tipo de documento
-def switch_case(tipo):
+def PdfToTxt(arquivo_entrada, prefixo_saida, tipo):
+    # Imputs
+    arquivo_saida_ocr = prefixo_saida + '_ocr.pdf'
+    arquivo_saida_txt = prefixo_saida + '.txt'
+    tipo = int(tipo)
+
     match tipo:
         case 0:
             layout = True
             raw = True
-            converter_pdf_para_txt(tipo, arquivo_entrada, arquivo_saida_txt, layout, raw)
+            converter_pdf_para_txt(tipo, arquivo_entrada, prefixo_saida, arquivo_saida_txt, layout, raw)
         case 1:
             layout = True
             raw = True
-            converter_pdf_para_txt(tipo, arquivo_entrada, arquivo_saida_txt, layout, raw)
+            converter_pdf_para_txt(tipo, arquivo_entrada, prefixo_saida, arquivo_saida_txt, layout, raw)
         case 2:
             layout = True
             raw = True
             force_ocr = True
             adicionar_ocr_ao_pdf(arquivo_entrada, arquivo_saida_ocr, force_ocr)
-            converter_pdf_para_txt(tipo, arquivo_saida_ocr, arquivo_saida_txt, layout, raw)
+            converter_pdf_para_txt(tipo, arquivo_saida_ocr, prefixo_saida, arquivo_saida_txt, layout, raw)
         case 3:
             layout = True
             raw = False
             force_ocr = False
             adicionar_ocr_ao_pdf(arquivo_entrada, arquivo_saida_ocr, force_ocr)
-            converter_pdf_para_txt(tipo, arquivo_saida_ocr, arquivo_saida_txt, layout, raw)
+            converter_pdf_para_txt(tipo, arquivo_saida_ocr, prefixo_saida, arquivo_saida_txt, layout, raw)
         case 4:
             layout = True
             raw = False
             force_ocr = True
             adicionar_ocr_ao_pdf(arquivo_entrada, arquivo_saida_ocr, force_ocr)
-            converter_pdf_para_txt(tipo, arquivo_saida_ocr, arquivo_saida_txt, layout, raw)
+            converter_pdf_para_txt(tipo, arquivo_saida_ocr, prefixo_saida, arquivo_saida_txt, layout, raw)
         case 5:
             layout = True
             raw = False
-            converter_pdf_para_txt(tipo, arquivo_entrada, arquivo_saida_txt, layout, raw)
+            converter_pdf_para_txt(tipo, arquivo_entrada, prefixo_saida, arquivo_saida_txt, layout, raw)
         case 6:
             layout = True
             raw = True
-            converter_pdf_para_txt(tipo, arquivo_entrada, arquivo_saida_txt, layout, raw)
+            converter_pdf_para_txt(tipo, arquivo_entrada, prefixo_saida, arquivo_saida_txt, layout, raw)
         case _:
             raise ValueError("Tipo inválido!")
-
-# Imputs
-arquivo_entrada = sys.argv[1]
-prefixo_saida = sys.argv[2]
-arquivo_saida_girado = prefixo_saida+ '_girado.pfd'
-arquivo_saida_ocr = prefixo_saida + '_ocr.pdf'
-arquivo_saida_txt = prefixo_saida + '.txt'
-tipo = int(sys.argv[3])
 
 '''
 Tipos:
@@ -112,5 +108,3 @@ Tipos:
 5 Itau BBA
 6 citi
 '''
-
-switch_case(tipo)

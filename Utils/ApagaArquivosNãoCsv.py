@@ -1,4 +1,3 @@
-import sys
 import os
 
 def deletar_arquivos_txt_e_pdf(pasta):
@@ -16,9 +15,3 @@ def deletar_arquivos_txt_e_pdf(pasta):
             caminho_completo = os.path.join(pasta, arquivo)
             os.remove(caminho_completo)
             print(f'Arquivo {caminho_completo} deletado com sucesso.')
-
-# Pasta onde os arquivos serão deletados
-pasta_alvo = sys.argv[1]
-
-# Chamada da função para deletar os arquivos
-deletar_arquivos_txt_e_pdf(pasta_alvo)

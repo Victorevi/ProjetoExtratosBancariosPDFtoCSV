@@ -1,10 +1,12 @@
 import logging
 import os
 import re
-import subprocess
 import sys
 import time
 from datetime import datetime
+from Utils.PdfToTxt import PdfToTxt
+from Utils.TxtToCsv import TxtToCsv
+from Utils.ApagaArquivosNãoCsv import deletar_arquivos_txt_e_pdf
 
 def limpa_caracteres(string):
     # Define a expressão regular para encontrar caracteres não ASCII
@@ -37,20 +39,22 @@ match tipo:
         classificacao = '0'
     case "CaixaExtratoPPeriodo":
         classificacao = '0'
-    case "CitiExtratoOperacoes":
-        classificacao = '6'
-    case "CitiExtratoC/C":
-        classificacao = '0'
     case "CitiExtratoConta":
+        classificacao = '0'
+    case "CitiExtratoC/C":
         classificacao = '0'
     case "CitiExtratoC/IAuto":
         classificacao = '0'
+    case "CitiExtratoOperacoes":
+        classificacao = '6'
     case "Dock":
         classificacao = '4'
-    case "ItauExtratoC/C-A/A":
-        classificacao = '0'
+    case "DockComDolar":
+        classificacao = '4'
     case "ItauBBA":
         classificacao = '5'
+    case "ItauExtratoC/C-A/A":
+        classificacao = '0'
     case "OriginalExtratoConta":
         classificacao = '0'
     case "PinbankExtratoContaP/L":
@@ -61,24 +65,16 @@ match tipo:
         classificacao = '0'
     case _:
         raise ValueError("Tipo inválido!")
-
-def chamar_script(script):
-    try:
-        processo = subprocess.Popen(script, shell=True)
-        processo.wait()
-        if processo.returncode != 0:
-            raise subprocess.CalledProcessError(processo.returncode, script)
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Erro ao chamar o script {script}: {e}")
-        raise subprocess.CalledProcessError(f"Erro ao chamar o script {script}: {e}")
-
-def main(tipo):
+    
+def main(tipo, classificacao):
     # Mudar o diretório de trabalho para onde os scripts estão localizados
     caminho_scripts = "C:/Users/vbarbosa/Documents/Scripts/Python/ProjetoExtratosBancariosPDFtoCSV"
     os.chdir(caminho_scripts)
 
+    print(f"Classificação:{classificacao}")
+
     # Montar o caminho completo para o arquivo de log
-    caminho_logs = 'C:/Users/vbarbosa/Documents/Scripts/Python/ProjetoExtratosBancariosPDFtoCSV/Logs'
+    caminho_logs = 'Logs'
     nome_log = f'{caminho_logs}/conversao_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.log'
 
     # Configurar o logger
@@ -88,28 +84,25 @@ def main(tipo):
     logging.info(f'Iniciando conversão para o tipo: {tipo}')
     logging.info(f'Arquivo de entrada: {arquivo_entrada}')
     logging.info(f'Caminho de saída: {caminho_saida}')
-    script_pdf = f'python PdfToTxt.py "{arquivo_pdf}" "{caminho_saida}" "{classificacao}"'
-    # Chama o primeiro script
-    chamar_script(script_pdf)
+
+    PdfToTxt(arquivo_pdf, caminho_saida, classificacao)
 
     # Aguarda até que o arquivo de texto seja gerado pelo primeiro script
     while not os.path.exists(arquivo_txt):
         time.sleep(1)
+    
+    print('\n')
 
-    script_txt = f'python TxtToCsv.py "{arquivo_txt}" "{arquivo_csv}" "{tipo}"'
-    # Chama o segundo script
-    chamar_script(script_txt)
+    TxtToCsv(arquivo_txt, arquivo_csv, tipo)
+
+    # Adicionar log de conclusão
+    print('Conversão concluída com sucesso!\n')
+    logging.info('Conversão concluída com sucesso!')
 
     # Aguarda até que o arquivo de CSV seja gerado pelo primeiro script
     while not os.path.exists(arquivo_csv):
         time.sleep(1)
 
-    script_apaga = f'python ApagaArquivosNãoCsv.py  "{pasta_saida}"'
-    # Chama o segundo script
-    chamar_script(script_apaga)
+    deletar_arquivos_txt_e_pdf(pasta_saida)
 
-    # Adicionar log de conclusão
-    print('Conversão concluída com sucesso!')
-    logging.info('Conversão concluída com sucesso!')
-
-main(tipo)
+main(tipo, classificacao)
